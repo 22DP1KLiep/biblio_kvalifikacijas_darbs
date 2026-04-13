@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="MessDetectorOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PHPCSFixerOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PHPCodeSnifferOptionsConfiguration">
+    <option name="highlightLevel" value="WARNING" />
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PhpIncludePathManager">
+    <include_path>
+      <path value="$PROJECT_DIR$/vendor/composer" />
+      <path value="$PROJECT_DIR$/biblio/vendor/inertiajs/inertia-laravel" />
+      <path value="$PROJECT_DIR$/biblio/vendor/composer" />
+      <path value="$PROJECT_DIR$/biblio/vendor/laravel/sanctum" />
+      <path value="$PROJECT_DIR$/biblio/vendor/laravel/breeze" />
+      <path value="$PROJECT_DIR$/biblio/vendor/tightenco/ziggy" />
+      <path value="$PROJECT_DIR$/biblio/vendor/psr/clock" />
+      <path value="$PROJECT_DIR$/biblio/vendor/psr/container" />
+      <path value="$PROJECT_DIR$/biblio/vendor/psr/event-dispatcher" />
+      <path value="$PROJECT_DIR$/biblio/vendor/psr/http-client" />
+      <path value="$PROJECT_DIR$/biblio/vendor/psr/http-factory" />
+      <path value="$PROJECT_DIR$/biblio/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/biblio/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/biblio/vendor/psr/simple-cache" />
+      <path value="$PROJECT_DIR$/biblio/vendor/psy/psysh" />
+      <path value="$PROJECT_DIR$/biblio/vendor/filp/whoops" />
+      <path value="$PROJECT_DIR$/biblio/vendor/voku/portable-ascii" />
+      <path value="$PROJECT_DIR$/biblio/vendor/brick/math" />
+      <path value="$PROJECT_DIR$/biblio/vendor/nette/schema" />
+      <path value="$PROJECT_DIR$/biblio/vendor/nette/utils" />
+      <path value="$PROJECT_DIR$/biblio/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/biblio/vendor/league/commonmark" />
+      <path value="$PROJECT_DIR$/biblio/vendor/league/config" />
+      <path value="$PROJECT_DIR$/biblio/vendor/league/flysystem" />
+      <path value="$PROJECT_DIR$/biblio/vendor/league/flysystem-local" />
+      <path value="$PROJECT_DIR$/biblio/vendor/league/mime-type-detection" />
+      <path value="$PROJECT_DIR$/biblio/vendor/league/uri" />
+      <path value="$PROJECT_DIR$/biblio/vendor/league/uri-interfaces" />
+      <path value="$PROJECT_DIR$/biblio/vendor/nesbot/carbon" />
+      <path value="$PROJECT_DIR$/biblio/vendor/ramsey/collection" />
+      <path value="$PROJECT_DIR$/biblio/vendor/ramsey/uuid" />
+      <path value="$PROJECT_DIR$/biblio/vendor/staabm/side-effects-detector" />
+      <path value="$PROJECT_DIR$/biblio/vendor/vlucas/phpdotenv" />
+      <path value="$PROJECT_DIR$/biblio/vendor/dflydev/dot-access-data" />
+      <path value="$PROJECT_DIR$/biblio/vendor/egulias/email-validator" />
+      <path value="$PROJECT_DIR$/biblio/vendor/laravel/framework" />
+      <path value="$PROJECT_DIR$/biblio/vendor/laravel/pail" />
+      <path value="$PROJECT_DIR$/biblio/vendor/laravel/pint" />
+      <path value="$PROJECT_DIR$/biblio/vendor/laravel/prompts" />
+      <path value="$PROJECT_DIR$/biblio/vendor/laravel/sail" />
+      <path value="$PROJECT_DIR$/biblio/vendor/laravel/serializable-closure" />
+      <path value="$PROJECT_DIR$/biblio/vendor/laravel/tinker" />
+      <path value="$PROJECT_DIR$/biblio/vendor/mockery/mockery" />
+      <path value="$PROJECT_DIR$/biblio/vendor/monolog/monolog" />
+      <path value="$PROJECT_DIR$/biblio/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/biblio/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/biblio/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/biblio/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/biblio/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/biblio/vendor/phpunit/php-invoker" />
+      <path value="$PROJECT_DIR$/biblio/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/biblio/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/biblio/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/clock" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/console" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/css-selector" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/error-handler" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/event-dispatcher" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/event-dispatcher-contracts" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/finder" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/http-foundation" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/http-kernel" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/mailer" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/mime" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/polyfill-ctype" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/polyfill-intl-grapheme" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/polyfill-intl-idn" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/polyfill-intl-normalizer" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/polyfill-php80" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/polyfill-php83" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/polyfill-uuid" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/process" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/routing" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/service-contracts" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/string" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/translation" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/translation-contracts" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/uid" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/var-dumper" />
+      <path value="$PROJECT_DIR$/biblio/vendor/symfony/yaml" />
+      <path value="$PROJECT_DIR$/biblio/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/biblio/vendor/doctrine/inflector" />
+      <path value="$PROJECT_DIR$/biblio/vendor/doctrine/lexer" />
+      <path value="$PROJECT_DIR$/biblio/vendor/fakerphp/faker" />
+      <path value="$PROJECT_DIR$/biblio/vendor/hamcrest/hamcrest-php" />
+      <path value="$PROJECT_DIR$/biblio/vendor/carbonphp/carbon-doctrine-types" />
+      <path value="$PROJECT_DIR$/biblio/vendor/fruitcake/php-cors" />
+      <path value="$PROJECT_DIR$/biblio/vendor/phpoption/phpoption" />
+      <path value="$PROJECT_DIR$/biblio/vendor/ralouphie/getallheaders" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/cli-parser" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/code-unit" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/complexity" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/lines-of-code" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/biblio/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/biblio/vendor/webmozart/assert" />
+      <path value="$PROJECT_DIR$/biblio/vendor/guzzlehttp/guzzle" />
+      <path value="$PROJECT_DIR$/biblio/vendor/guzzlehttp/promises" />
+      <path value="$PROJECT_DIR$/biblio/vendor/guzzlehttp/psr7" />
+      <path value="$PROJECT_DIR$/biblio/vendor/guzzlehttp/uri-template" />
+      <path value="$PROJECT_DIR$/biblio/vendor/nunomaduro/collision" />
+      <path value="$PROJECT_DIR$/biblio/vendor/nunomaduro/termwind" />
+      <path value="$PROJECT_DIR$/biblio/vendor/tijsverkoyen/css-to-inline-styles" />
+      <path value="$PROJECT_DIR$/biblio/vendor/dragonmantank/cron-expression" />
+      <path value="$PROJECT_DIR$/biblio/vendor/graham-campbell/result-type" />
+    </include_path>
+  </component>
+  <component name="PhpProjectSharedConfiguration" php_language_level="8.2">
+    <option name="suggestChangeDefaultLanguageLevel" value="false" />
+  </component>
+  <component name="PhpStanOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PhpUnit">
+    <phpunit_settings>
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/biblio/phpunit.xml" custom_loader_path="$PROJECT_DIR$/biblio/vendor/autoload.php" use_configuration_file="true" />
+      <PhpUnitSettings custom_loader_path="$PROJECT_DIR$/vendor/autoload.php" />
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/biblio/phpunit.xml" custom_loader_path="$PROJECT_DIR$/biblio/vendor/autoload.php" use_configuration_file="true" />
+    </phpunit_settings>
+  </component>
+  <component name="PsalmOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+</project>
