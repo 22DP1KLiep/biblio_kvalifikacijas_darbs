@@ -1,117 +1,172 @@
 <template>
-    
-  <div class="flex flex-col md:flex-row min-h-screen bg-[#f0f4f8]">
+  <div class="bg-[#f3f6fb] min-h-screen pb-20">
 
-    <!-- SIDEBAR -->
-    <aside
-      class="w-full md:w-72 bg-white border-r border-gray-200 shadow-md p-6 flex flex-col rounded-none md:rounded-tr-xl md:rounded-br-xl mb-6 md:mb-0"
-    >
-      <!-- Lietotājs + iziet -->
-      <div class="flex items-center justify-between mb-6">
-        <p class="text-[15px] font-medium text-[#213555] truncate">
-          👤 {{ user.username }}
-        </p>
-        <button
-          @click="logout"
-          class="text-[11px] bg-red-500 hover:bg-red-600 text-white px-2 py-[3px] rounded transition"
-        >
-          Iziet
-        </button>
+    <!-- COVER -->
+    <div class="h-56 bg-gradient-to-r from-[#213555] to-[#3E5879]"></div>
+
+    <!-- PROFILE -->
+    <div class="max-w-5xl mx-auto px-6">
+
+      <div class="-mt-20 bg-white rounded-2xl shadow-xl p-6 md:p-8">
+
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+
+          <!-- LEFT -->
+          <div class="flex items-center gap-5">
+
+            <img
+              :src="`https://ui-avatars.com/api/?name=${user.username}`"
+              class="w-24 h-24 rounded-full border-4 border-white shadow"
+            />
+
+            <div>
+              <h1 class="text-2xl md:text-3xl font-bold text-[#213555]">
+                {{ user.username }}
+              </h1>
+              <p class="text-gray-500 text-sm">{{ user.email }}</p>
+
+              <div class="flex gap-6 mt-3 text-sm text-gray-600">
+                <p><span class="font-bold text-[#213555]">{{ folders.length }}</span> mapes</p>
+                <p><span class="font-bold text-[#213555]">{{ books.length }}</span> grāmatas</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="flex gap-3">
+            <button class="px-4 py-2 bg-[#213555] text-white rounded-lg">
+              ✏️ Rediģēt
+            </button>
+            <button class="px-4 py-2 bg-gray-200 rounded-lg">
+              ⚙️ Iestatījumi
+            </button>
+          </div>
+
+        </div>
+
       </div>
 
-      <!-- Mapes -->
-      <div class="flex-1 overflow-y-auto pr-1">
-        <h2 class="text-sm font-semibold text-[#3E5879] mb-3 uppercase tracking-wide">
-          Tavas mapes
-        </h2>
+      <!-- TABS -->
+      <div class="mt-8 flex gap-6 border-b text-sm">
 
-        <ul class="space-y-2 mb-4">
-          <li
+        <button
+          @click="activeTab = 'folders'"
+          :class="tabClass('folders')"
+        >
+          📁 Mapes
+        </button>
+
+        <button
+          @click="activeTab = 'books'"
+          :class="tabClass('books')"
+        >
+          📚 Grāmatas
+        </button>
+
+        <button
+          @click="activeTab = 'stats'"
+          :class="tabClass('stats')"
+        >
+          📊 Statistika
+        </button>
+
+      </div>
+
+      <!-- CONTENT -->
+
+      <!-- FOLDERS -->
+      <div v-if="activeTab === 'folders'" class="mt-6">
+
+        <!-- ADD -->
+        <div class="flex gap-2 mb-4">
+          <input
+            v-model="newFolderName"
+            placeholder="Jauna mape..."
+            class="flex-1 border px-3 py-2 rounded-lg"
+          />
+          <button
+            @click="createFolder"
+            class="bg-[#213555] text-white px-4 rounded-lg"
+          >
+            +
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+
+          <div
             v-for="folder in folders"
             :key="folder.id"
-            class="flex items-center justify-between bg-[#f5f7fa] hover:bg-[#e6ecf3] transition rounded px-3 py-2"
+            @click="selectFolder(folder.id)"
+            class="bg-white p-4 rounded-xl shadow hover:shadow-lg transition cursor-pointer"
           >
-            <span
-              class="text-[#213555] text-sm cursor-pointer"
-              @click="selectFolder(folder.id)"
-            >
-              📁 {{ folder.name }}
-            </span>
+            <p class="text-2xl">📁</p>
+            <p class="mt-2 font-semibold text-[#213555]">
+              {{ folder.name }}
+            </p>
+          </div>
 
-            <button
-              @click="openDeleteFolderModal(folder.id)"
-              class="text-red-500 hover:text-red-700 text-sm"
-            >
-              🗑️
-            </button>
-          </li>
-        </ul>
+        </div>
 
-        <!-- Jauna mape -->
-        <input
-          v-model="newFolderName"
-          placeholder="Mapes nosaukums"
-          class="w-full border border-gray-300 px-2 py-1 rounded mb-2 text-sm"
-        />
-        <button
-          @click="createFolder"
-          class="w-full bg-[#213555] hover:bg-[#3E5879] text-white py-1 rounded text-sm"
-        >
-          Pievienot
-        </button>
-      </div>
-    </aside>
-
-    <!-- CONTENT -->
-    <main class="flex-1 p-4 md:p-8 overflow-y-auto">
-      <h1 class="text-xl sm:text-2xl font-bold text-[#213555] mb-6">
-        📂 {{ selectedFolderName || 'Nav atlasīta mape' }}
-      </h1>
-
-      <div
-        v-if="books.length"
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-      >
-        <BookCard
-          v-for="book in books"
-          :key="book.id"
-          :book="book"
-          :folder-id="selectedFolderId"
-          @removed="removeBookFromList"
-        />
       </div>
 
-      <p v-else class="text-gray-500 italic mt-10 text-center">
-        Šajā mapē vēl nav nevienas grāmatas.
-      </p>
-    </main>
-  </div>
+      <!-- BOOKS -->
+      <div v-if="activeTab === 'books'" class="mt-6">
 
-  <!-- DELETE FOLDER MODAL -->
-  <div
-    v-if="showDeleteFolderModal"
-    class="fixed inset-0 bg-black/50 flex justify-center items-center z-50"
-  >
-    <div class="bg-white rounded-lg shadow-xl p-6 w-80 text-center">
-      <h3 class="text-lg font-semibold mb-4">Apstiprināt dzēšanu</h3>
-      <p class="text-gray-700 mb-4">
-        Vai tiešām vēlies dzēst šo mapi?
-      </p>
-      <div class="flex justify-center gap-4">
-        <button @click="cancelDeleteFolder" class="px-4 py-2 bg-gray-200 rounded">
-          Atcelt
-        </button>
-        <button @click="deleteFolderConfirmed" class="px-4 py-2 bg-red-500 text-white rounded">
-          Dzēst
-        </button>
+        <div class="mb-4">
+          <input
+            placeholder="🔍 Meklē..."
+            class="w-full border px-4 py-2 rounded-xl"
+          />
+        </div>
+
+        <div v-if="books.length"
+             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+          <BookCard
+            v-for="book in books"
+            :key="book.id"
+            :book="book"
+          />
+
+        </div>
+
+        <div v-else class="text-center mt-16">
+          <p class="text-5xl mb-3">📚</p>
+          <p class="text-gray-500">Nav grāmatu</p>
+        </div>
+
       </div>
+
+      <!-- STATS -->
+      <div v-if="activeTab === 'stats'" class="mt-6 grid grid-cols-3 gap-4">
+
+        <div class="bg-white p-4 rounded-xl shadow text-center">
+          <p class="text-2xl font-bold">{{ books.length }}</p>
+          <p class="text-sm text-gray-500">Grāmatas</p>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow text-center">
+          <p class="text-2xl font-bold">{{ folders.length }}</p>
+          <p class="text-sm text-gray-500">Mapes</p>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow text-center">
+          <p class="text-2xl font-bold">0</p>
+          <p class="text-sm text-gray-500">Izlasītas</p>
+        </div>
+
+      </div>
+
     </div>
+
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { router, usePage } from '@inertiajs/vue3'
+import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 import BookCard from '@/Components/BookCard.vue'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
@@ -123,14 +178,8 @@ const user = computed(() => page.props.auth.user)
 
 const folders = ref([])
 const books = ref([])
-const selectedFolderName = ref('')
-const selectedFolderId = ref(null)
+const activeTab = ref('folders')
 const newFolderName = ref('')
-
-const showDeleteFolderModal = ref(false)
-const folderToDelete = ref(null)
-
-const logout = () => router.post('/logout')
 
 const fetchFolders = async () => {
   const { data } = await axios.get('/folders')
@@ -142,8 +191,7 @@ watch(user, fetchFolders, { immediate: true })
 const selectFolder = async (id) => {
   const { data } = await axios.get(`/folders/${id}/books`)
   books.value = data.books
-  selectedFolderName.value = data.folder.name
-  selectedFolderId.value = id
+  activeTab.value = 'books'
 }
 
 const createFolder = async () => {
@@ -153,23 +201,12 @@ const createFolder = async () => {
   fetchFolders()
 }
 
-const removeBookFromList = (id) => {
-  books.value = books.value.filter(b => b.id !== id)
-}
-
-const openDeleteFolderModal = (id) => {
-  folderToDelete.value = id
-  showDeleteFolderModal.value = true
-}
-
-const cancelDeleteFolder = () => {
-  showDeleteFolderModal.value = false
-  folderToDelete.value = null
-}
-
-const deleteFolderConfirmed = async () => {
-  await axios.delete(`/folders/${folderToDelete.value}`)
-  folders.value = folders.value.filter(f => f.id !== folderToDelete.value)
-  showDeleteFolderModal.value = false
+const tabClass = (tab) => {
+  return [
+    'pb-2',
+    activeTab.value === tab
+      ? 'border-b-2 border-[#213555] text-[#213555] font-semibold'
+      : 'text-gray-500 hover:text-[#213555]'
+  ]
 }
 </script>
