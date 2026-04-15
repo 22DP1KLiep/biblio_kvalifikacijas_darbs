@@ -51,10 +51,11 @@ class BookController extends Controller
 {
     $book = Book::with([
         'genres',
+        'folders',
         'comments' => function ($query) {
-            $query->with('user')        // lai redz komentētāju
-                  ->withCount('likes')  // lai redz like skaitu
-                  ->orderBy('created_at', 'desc');
+            $query->with('user')
+                ->withCount('likes')
+                ->orderBy('created_at', 'desc');
         }
     ])->findOrFail($id);
 

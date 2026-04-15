@@ -64,31 +64,56 @@
                     <!-- Mape + komentārs -->
                     <div v-if="$page.props.auth.user">
                         <!-- Mape -->
-                        <div class="flex flex-col sm:flex-row items-center gap-3 mt-6">
-                            <div class="relative w-full sm:w-64">
-                                <select
-                                    v-model="selectedFolderId"
-                                    class="appearance-none w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#213555]"
-                                >
-                                    <option disabled value="">-- Izvēlies mapi --</option>
-                                    <option v-for="folder in folders" :key="folder.id" :value="folder.id">
-                                        {{ folder.name }}
-                                    </option>
-                                </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <button
-                                @click="saveBookToFolder"
-                                class="bg-[#213555] hover:bg-[#3e5879] text-white px-4 py-2 rounded-lg shadow"
+                        <div class="relative mt-6">
+
+                        <!-- POGA -->
+                        <button
+                            @click.stop="toggleFolderDropdown"
+                            class="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-xl bg-white hover:bg-gray-50 shadow-sm text-[#213555]"
+                        >
+                        <span class="material-icons-outlined">folder</span>
+                            Pievienot mapē
+                        </button>
+
+                        <!-- DROPDOWN -->
+                        <div
+                            v-if="showFolderDropdown"
+                            ref="dropdown"
+                            class="absolute mt-2 w-56 bg-white border rounded-xl shadow-lg z-20"
+                        >
+                            <div
+                                v-for="folder in folders"
+                                :key="folder.id"
+                                @click="selectFolder(folder.id)"
+                                class="flex justify-between items-center px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
                             >
-                                Pievienot mapē
-                            </button>
+
+                                <span>{{ folder.name }}</span>
+
+                                <!-- IKONA -->
+                                <span>
+                                    <span v-if="savedFolderIds.includes(folder.id)"
+                                        class="material-icons-outlined text-red-400 text-[18px]">
+                                        remove
+                                    </span>
+
+                                    <span v-else
+                                        class="material-icons-outlined text-green-500 text-[18px]">
+                                        add
+                                    </span>
+                                </span>
+
+                            </div>
                         </div>
-                        <p v-if="isSavedToFolder" class="text-green-600 mt-2 text-sm">✔️ Grāmata pievienota</p>
+
+                    </div>
+
+                    <p v-if="isSavedToFolder" class="text-green-600 mt-2 text-sm">
+                        Pievienots mapē.
+                    </p>
+                    <p v-if="removedFromFolder" class="text-red-500 mt-2 text-sm">
+                        Izņemta no mapes.
+                    </p>
 
                         <!-- Komentārs -->
                         <div class="mt-4">
@@ -297,18 +322,18 @@ export default {
             comments: [],
             averageRating: null,
             folders: [],
-            selectedFolderId: null,
             isSavedToFolder: false,
             visibleCommentsCount: 2,
             showAllComments: false,
             deleteModalVisible: false,
             commentToDeleteId: null,
-            showAddedToFolderModal: false,
             activeMenu: null,
             reportModalVisible: false,
             reportCommentId: null,
             reportReason: '',
             highlightedCommentId: null,
+            showFolderDropdown: false,
+            removedFromFolder: false,
 
         };
     },
@@ -341,7 +366,11 @@ export default {
             }, 4000);
         }
     });
+    document.addEventListener('click', this.handleClickOutside);
+    
 },
+    beforeUnmount() { document.removeEventListener('click', this.handleClickOutside); },
+
     methods: {
         fetchBook() {
             axios.get(`/books/${this.id}`).then(res => this.book = res.data);
@@ -393,14 +422,6 @@ export default {
         },
         fetchFolders() {
             axios.get('/folders').then(res => this.folders = res.data);
-        },
-        saveBookToFolder() {
-            if (!this.selectedFolderId) return alert("Lūdzu izvēlies mapi!");
-            axios.post(`/folders/${this.selectedFolderId}/books`, { book_id: this.book.id })
-                .then(() => {
-                    this.isSavedToFolder = true;
-                    this.showAddedToFolderModal = true;
-                });
         },
 
         submitFeedback() {
@@ -479,7 +500,55 @@ submitReport() {
         alert(error.response?.data?.message || 'Kļūda');
     });
 },
+toggleFolderDropdown() {
+    this.showFolderDropdown = !this.showFolderDropdown;
+},
 
+selectFolder(folderId) {
+    this.showFolderDropdown = false;
+
+    if (this.savedFolderIds.includes(folderId)) {
+
+    axios.delete(`/folders/${folderId}/books/${this.book.id}`)
+    .then(() => {
+        this.removedFromFolder = true;
+
+        this.fetchBook();
+
+        setTimeout(() => {
+            this.removedFromFolder = false;
+        }, 2000);
+    })
+    .catch(error => {
+        console.error("Kļūda dzēšot:", error);
+    });
+
+    return;
+}
+
+    // 🔥 JA NAV → PIEVIENO
+    axios.post(`/folders/${folderId}/books`, {
+        book_id: this.book.id
+    })
+    .then(() => {
+        this.isSavedToFolder = true;
+
+        this.fetchBook();
+
+        setTimeout(() => {
+            this.isSavedToFolder = false;
+        }, 2000);
+    })
+    .catch(error => {
+        console.error("Kļūda:", error);
+    });
+},
+handleClickOutside(event) {
+    if (!this.$refs.dropdown) return;
+    if (!this.$refs.dropdown.contains(event.target)) {
+        this.showFolderDropdown = false;
+    }
+},
 
     },
     watch: {
@@ -499,8 +568,11 @@ submitReport() {
             if (!img) return 'https://via.placeholder.com/300';
             // ja bilde ir no Google (pilns URL), atgriežam to tieši
             return img.startsWith('http') ? img : `/${img}`;
-        }
+        },
+        savedFolderIds() {
+        return this.book?.folders?.map(f => f.id) || [];
     }
+    },
 };
 </script>
 <style>
