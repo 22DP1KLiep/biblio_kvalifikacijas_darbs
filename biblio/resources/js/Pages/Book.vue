@@ -17,10 +17,9 @@
                             <label v-for="n in 5" :key="n" class="cursor-pointer transition-transform hover:scale-110">
                                 <input
                                     type="radio"
-                                    :id="`star${n}`"
-                                    name="rating"
                                     :value="n"
                                     v-model="selectedRating"
+                                    @change="saveRating"
                                     class="hidden"
                                 />
                                 <svg
@@ -36,17 +35,15 @@
                                 </svg>
                             </label>
                         </div>
-                        <button @click="saveRating" class="mt-2 bg-[#213555] hover:bg-[#3e5879] text-white px-4 py-2 rounded">
-                            Apstiprināt vērtējumu
-                        </button>
-                        <p v-if="ratingSaved" class="text-green-600 text-sm mt-1">✔️ Vērtējums saglabāts!</p>
+                        
+                        <p v-if="ratingSaved" class="text-green-600 text-sm mt-1">Vērtējums saglabāts!</p>
                     </div>
                 </div>
 
                 <!-- Saturs -->
                 <div class="w-full lg:w-2/3 flex flex-col">
                     <h1 class="text-3xl font-bold text-[#213555] mb-2">{{ book.title }}</h1>
-                    <p class="text-lg text-gray-700 italic mb-4">by {{ book.author }}</p>
+                    <p class="text-lg text-gray-700 italic mb-4">{{ book.author }}</p>
 
                     <!-- Žanri -->
                     <div v-if="book.genres?.length" class="flex flex-wrap gap-2 mb-4">
@@ -114,22 +111,88 @@
                     <p v-if="removedFromFolder" class="text-red-500 mt-2 text-sm">
                         Izņemta no mapes.
                     </p>
+                    <!-- Vidējais vērtējums -->
+                    <div v-if="averageRating !== null" class="mt-6 flex items-center gap-3">
+
+                        <div class="flex items-center">
+                            <span
+                                v-for="n in 5"
+                                :key="n"
+                                class="material-icons text-[20px]"
+                                :class="n <= Math.round(averageRating) ? 'text-yellow-400' : 'text-gray-300'"
+                            >
+                                star
+                            </span>
+                        </div>
+
+                        <!-- skaitlis -->
+                        <span class="text-lg font-semibold text-[#213555]">
+                            {{ averageRating.toFixed(1) }}
+                        </span>
+
+                        <span class="text-sm text-gray-400">
+                            ({{ ratingsCount }} vērtējumi)
+                        </span>
+                        <!--  skaits -->
+                        <span class="text-sm text-gray-400">
+                            ({{ comments.length }} atsauksmes)
+                        </span>
+
+
+                    </div>
 
                         <!-- Komentārs -->
                         <div class="mt-4">
-                            <label class="block text-sm font-medium mb-1 text-gray-800">Tavs komentārs:</label>
-                            <textarea
-                                v-model="comment"
-                                class="w-full border rounded p-3"
-                                rows="4"
-                                placeholder="Ieraksti savas domas..."
-                            ></textarea>
-                            <button
-                                class="mt-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
-                                @click="submitFeedback"
-                            >
-                                Iesniegt
-                            </button>
+                            <!-- <label class="block text-sm font-medium mb-1 text-gray-800">Tavs komentārs:</label> -->
+                            <div class="mt-6 flex items-start gap-3">
+
+                                <!-- Avatar -->
+                                <div class="w-9 h-9 rounded-full bg-[#213555] flex items-center justify-center text-white text-sm font-bold">
+                                    {{ $page.props.auth.user.username.charAt(0).toUpperCase() }}
+                                </div>
+
+                                <!-- Input zona -->
+                                <div class="flex-1">
+
+                                    <!-- TEXTAREA -->
+                                    <textarea
+                                        ref="textarea"
+                                        v-model="comment"
+                                        rows="3"
+                                        placeholder="Uzraksti savu atsauksmi..."
+                                        class="w-full resize-none border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#213555]"
+                                        @keydown.enter.prevent="handleEnter"
+                                    ></textarea>
+
+                                    <!-- POGU RINDA -->
+                                    <div class="flex justify-between items-center mt-2">
+
+                                        <!-- Kreisā puse -->
+                                        <button
+                                            @click="addSpoiler"
+                                            class="text-xs text-blue-600 border border-blue-200 px-2 py-1 rounded hover:bg-blue-50 transition"
+                                        >
+                                            Noslēpt sižetu
+                                        </button>
+
+                                        <!-- Labā puse -->
+                                        <button
+                                            @click="submitFeedback"
+                                            class="bg-[#213555] hover:bg-[#3e5879] text-white px-4 py-1.5 rounded-lg text-xs"
+                                        >
+                                            Sūtīt
+                                        </button>
+
+                                    </div>
+
+                                    <!-- Helper -->
+                                    <p class="text-xs text-gray-400 mt-1">
+                                        Iezīmē tekstu un spied "Noslēpt sižetu", lai noslēptu sižetu.
+                                    </p>
+
+                                </div>
+
+                            </div>
                         </div>
                     </div>
 
@@ -139,94 +202,121 @@
                         <a href="/auth" class="text-blue-600 font-semibold underline">ienāc sistēmā</a>.
                     </div>
 
-                    <!-- Vidējais vērtējums -->
-                    <div v-if="averageRating !== null" class="mt-8 flex items-center gap-2">
-                        <span class="text-xl font-semibold">Vidējais vērtējums:</span>
-                        <span class="text-yellow-500 text-2xl">
-              <template v-for="n in 5">
-                <span v-if="n <= Math.round(averageRating)">★</span>
-                <span v-else class="text-gray-300">★</span>
-              </template>
-            </span>
-                        <span class="text-gray-700">({{ averageRating.toFixed(1) }} / 5)</span>
-                    </div>
+                    
 
                     <!-- Atsauksmes -->
                     <div class="mt-10">
     <h2 class="text-2xl font-semibold text-[#213555] mb-4">Lasītāju atsauksmes</h2>
+    <p v-if="reportSent"
+        class="bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm mb-3 inline-block">
+        Ziņojums nosūtīts
+    </p>
 
     <div v-if="comments.length" class="space-y-3">
 
         <div
-            v-for="c in showAllComments ? comments : comments.slice(0, visibleCommentsCount)"
-            :key="c.id"
-            :id="`comment-${c.id}`"
-            class="bg-white border rounded-md p-3 shadow-sm text-sm"
-            :class="{ 'ring-2 ring-yellow-400 bg-yellow-50': highlightedCommentId == c.id }"
-        >
+    v-for="c in showAllComments ? comments : comments.slice(0, visibleCommentsCount)"
+    :key="c.id"
+    :id="`comment-${c.id}`"
+    class="flex gap-4 py-4 border-b"
+>
 
-            <!-- Lietotājvārds -->
-            <p class="text-gray-800 font-semibold mb-1">
-                {{ c.user?.username || 'Anonīms' }}
-            </p>
-
-            <!-- Komentāra teksts -->
-            <p class="text-gray-600 whitespace-pre-wrap">
-                {{ c.comment }}
-            </p>
-
-            <div class="flex justify-between items-center mt-3">
-
-    <!-- LIKE POGA -->
-    <button
-        @click="likeComment(c.id)"
-        class="text-sm text-gray-600 hover:text-red-500 transition"
+    <!-- Avatar -->
+    <a
+        :href="`/users/${c.user.id}`"
+        class="w-10 h-10 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center text-sm font-semibold hover:bg-[#213555] hover:text-white transition"
     >
-        ❤️ {{ c.likes_count ?? 0 }}
-    </button>
+        {{ c.user.username.charAt(0).toUpperCase() }}
+    </a>
 
-    <!-- TRĪS PUNKTI -->
+    <!-- Saturs -->
+    <div class="flex-1">
+
+        <!-- Username + time -->
+        <div class="flex justify-between items-center">
+    
+    <!-- kreisā puse -->
+    <div class="flex items-center gap-2">
+        <a
+            :href="`/users/${c.user.id}`"
+            class="font-semibold text-[#213555] text-sm hover:underline hover:text-blue-600 transition"
+        >
+            {{ c.user.username }}
+        </a>
+
+        <span class="text-gray-400 text-xs">
+            • {{ formatDate(c.created_at) }}
+        </span>
+    </div>
+
+    <!-- LABĀ PUSE (⋯) -->
     <div class="relative">
         <button
             @click="toggleMenu(c.id)"
-            class="text-gray-500 hover:text-gray-700 text-lg px-2"
+            class="text-gray-400 hover:text-gray-600 text-lg"
         >
-            ⋮
+            ⋯
         </button>
 
         <div
             v-if="activeMenu === c.id"
-            class="absolute right-0 mt-2 w-32 bg-white border rounded shadow-md z-10"
+            class="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 z-20 overflow-hidden"lass="absolute right-0 mt-2 w-32 bg-white border rounded shadow-md z-10"
         >
-            <!-- DELETE -->
             <button
                 v-if="$page.props.auth.user &&
                     (c.user_id === $page.props.auth.user.id ||
-                     $page.props.auth.user.role === 'admin')"
+                    $page.props.auth.user.role === 'admin')"
                 @click="confirmDelete(c.id)"
-                class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 text-red-600"
+                class="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition"
             >
-                🗑 Delete
+                <span class="material-icons-outlined text-[18px]">delete</span>
+                Dzēst
             </button>
 
-            <!-- REPORT -->
             <button
                 v-if="$page.props.auth.user &&
                     c.user_id !== $page.props.auth.user.id"
                 @click="openReportModal(c.id)"
-                class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 text-orange-600"
+                class="flex items-center gap-2 w-full px-4 py-2 text-sm text-orange-500 hover:bg-orange-50 transition"
             >
-                🚩 Report
+                <span class="material-icons-outlined text-[18px]">flag</span>
+                Ziņot
             </button>
         </div>
     </div>
 
 </div>
 
+        <!-- Teksts -->
+        <div class="text-gray-700 text-sm mt-1 leading-relaxed"
+            v-html="formatComment(c.comment)">
         </div>
 
+        <!-- Actions -->
+        <div class="flex items-center gap-4 mt-2 text-xs">
+
+            <button
+                @click="likeComment(c.id)"
+                class="flex items-center gap-1 transition"
+            >
+                <span class="material-icons text-[18px]">
+                    {{ c.is_liked ? 'thumb_up' : 'thumb_up_off_alt' }}
+                </span>
+                <span class="text-gray-600">
+                    {{ c.likes_count ?? 0 }}
+                </span>
+            </button>
+
+        </div>
+    </div>
+</div>
+
         <!-- Rādīt vairāk -->
-        <div v-if="comments.length > 2" class="text-center mt-4">
+        <div
+            v-if="comments.length > 2"
+            ref="commentsToggle"
+            class="text-center mt-4"
+        >
             <button
                 @click="toggleComments"
                 class="text-sm text-[#213555] font-medium hover:underline"
@@ -242,55 +332,131 @@
     </div>
 </div>
 
-                    <!-- Dzēšanas apstiprinājuma logs -->
-                    <div v-if="deleteModalVisible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                        <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
-                            <h2 class="text-xl font-semibold text-gray-800 mb-4">Apstiprināt dzēšanu</h2>
-                            <p class="text-gray-700 mb-6">Vai tiešām vēlies dzēst šo komentāru?</p>
-                            <div class="flex justify-end gap-4">
-                                <button
-                                    @click="cancelDelete"
-                                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-800"
-                                >
-                                    Atcelt
-                                </button>
-                                <button
-                                    @click="deleteCommentConfirmed"
-                                    class="px-4 py-2 bg-red-500 hover:bg-red-600 rounded text-white"
-                                >
-                                    Dzēst
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+<div
+    v-if="showFloatingCollapse && showAllComments"
+    class="fixed bottom-6 right-6 z-50"
+>
+    <button
+        @click="toggleComments"
+        class="bg-[#213555] hover:bg-[#3e5879] text-white px-4 py-2 rounded-full shadow-lg text-sm transition"
+    >
+        ↑ Rādīt mazāk
+    </button>
+</div>
+
+                    <div v-if="deleteModalVisible"
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+
+        <!-- HEADER -->
+        <div class="bg-[#213555] text-white px-6 py-4 flex items-center gap-3">
+            <span class="material-icons">warning</span>
+            <h2 class="text-lg font-semibold">Apstiprināt dzēšanu</h2>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="p-6 text-gray-700 text-sm">
+            Vai tiešām vēlies dzēst šo komentāru?  
+            <br>
+            <span class="text-gray-400 text-xs">Šo darbību nevar atsaukt.</span>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="flex justify-end gap-3 px-6 pb-6">
+
+            <!-- Atcelt -->
+            <button
+                @click="cancelDelete"
+                class="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition text-sm"
+            >
+                Atcelt
+            </button>
+
+            <!-- Dzēst -->
+            <button
+                @click="deleteCommentConfirmed"
+                class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition text-sm flex items-center gap-1"
+            >
+                <span class="material-icons text-[16px]">delete</span>
+                Dzēst
+            </button>
+
+        </div>
+    </div>
+</div>
 
                     <!-- REPORT MODAL -->
 <div v-if="reportModalVisible"
-     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
-        <h2 class="text-xl font-semibold mb-4">Ziņot par komentāru</h2>
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
 
-        <textarea
-            v-model="reportReason"
-            class="w-full border rounded p-3 mb-4"
-            rows="4"
-            placeholder="Ieraksti iemeslu..."
-        ></textarea>
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
 
-        <div class="flex justify-end gap-4">
+        <!-- HEADER -->
+        <div class="bg-[#213555] text-white px-6 py-4 flex items-center gap-3">
+            <span class="material-icons">flag</span>
+            <h2 class="text-lg font-semibold">Ziņot par komentāru</h2>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="p-6 text-sm text-gray-700 space-y-3">
+
+            <label class="block font-medium mb-2">Izvēlies iemeslu:</label>
+
+            <!-- OPTIONS -->
+            <div class="space-y-2">
+
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" value="rupjības" v-model="reportReasonType">
+                    Rupjības vai aizskarošs saturs
+                </label>
+
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" value="spoiler" v-model="reportReasonType">
+                    Atklāj sižetu
+                </label>
+
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" value="spam" v-model="reportReasonType">
+                    Spams vai reklāma
+                </label>
+
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" value="cits" v-model="reportReasonType">
+                    Cits
+                </label>
+
+            </div>
+
+            <!-- TEXTAREA tikai ja "Cits" -->
+            <textarea
+                v-if="reportReasonType === 'cits'"
+                v-model="reportReason"
+                class="w-full border rounded p-3 mt-3"
+                rows="3"
+                placeholder="Apraksti iemeslu..."
+            ></textarea>
+
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="flex justify-end gap-3 px-6 pb-6">
+
             <button
                 @click="reportModalVisible = false"
-                class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
+                class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-100 text-sm"
             >
                 Atcelt
             </button>
 
             <button
                 @click="submitReport"
-                class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded"
+                class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm flex items-center gap-1"
             >
+                <span class="material-icons text-[16px]">send</span>
                 Nosūtīt
             </button>
+
         </div>
     </div>
 </div>
@@ -308,6 +474,7 @@
 <script>
 import axios from 'axios';
 import Navbar from "@/Components/Navbar.vue";
+
 
 export default {
     components: { Navbar },
@@ -334,6 +501,10 @@ export default {
             highlightedCommentId: null,
             showFolderDropdown: false,
             removedFromFolder: false,
+            showFloatingCollapse: false,
+            ratingsCount: 0,
+            reportReasonType: '',
+            reportSent: false,
 
         };
     },
@@ -367,17 +538,44 @@ export default {
         }
     });
     document.addEventListener('click', this.handleClickOutside);
-    
+
+    this.handleSpoilerClick = (e) => {
+    const box = e.target.closest('.spoiler-box');
+    if (box) {
+        box.classList.toggle('revealed');
+    }
+};
+
+document.addEventListener('click', this.handleSpoilerClick);
+
+window.addEventListener('scroll', this.handleScroll);
 },
-    beforeUnmount() { document.removeEventListener('click', this.handleClickOutside); },
+    beforeUnmount() {
+    document.removeEventListener('click', this.handleClickOutside);
+    document.removeEventListener('click', this.handleSpoilerClick);
+    window.removeEventListener('scroll', this.handleScroll);
+},
 
     methods: {
         fetchBook() {
             axios.get(`/books/${this.id}`).then(res => this.book = res.data);
         },
+        formatComment(text) {
+            if (!text) return '';
+
+            return text.replace(
+                /\[spoiler\](.*?)\[\/spoiler\]/g,
+                `<span class="spoiler-box">
+                    <span class="spoiler-text">$1</span>
+                </span>`
+            );
+        },
         fetchRatings() {
             axios.get(`/books/${this.id}/ratings`).then(res => {
                 const ratings = res.data;
+
+                this.ratingsCount = ratings.length; // 🔥 ŠIS JAUNS
+
                 if (ratings.length) {
                     const total = ratings.reduce((sum, r) => sum + Number(r.rating), 0);
                     this.averageRating = total / ratings.length;
@@ -399,23 +597,23 @@ export default {
                 });
         },
         saveRating() {
-    if (!this.selectedRating) return alert("Lūdzu izvēlies vērtējumu!");
+            if (!this.selectedRating) return;
+            if (this.selectedRating === this.rating) return;
 
-    axios.post(`/books/${this.book.id}/ratings`, { rating: this.selectedRating })
-        .then(() => {
-            this.rating = this.selectedRating;
-            this.ratingSaved = true;
-            this.fetchRatings();
-            setTimeout(() => this.ratingSaved = false, 3000);
-        })
-        .catch(error => {
-            if (error.response && error.response.status === 403) {
-                alert(error.response.data.message);
-            } else {
+            axios.post(`/books/${this.book.id}/ratings`, {
+                rating: this.selectedRating
+            })
+            .then(() => {
+                this.rating = this.selectedRating;
+                this.ratingSaved = true;
+                this.fetchRatings();
+
+                setTimeout(() => this.ratingSaved = false, 2000);
+            })
+            .catch(error => {
                 console.error(error);
-            }
-        });
-},
+            });
+        },
 
         fetchComments() {
             axios.get(`/books/${this.id}/comments`).then(res => this.comments = res.data);
@@ -431,7 +629,8 @@ export default {
         .then(() => {
             this.fetchComments();
             this.comment = '';
-            this.visibleCommentsCount = Math.max(this.visibleCommentsCount, this.comments.length);
+            this.visibleCommentsCount = 2;
+            this.showAllComments = false;
         })
         .catch(error => {
             if (error.response && error.response.status === 403) {
@@ -469,14 +668,16 @@ export default {
         },
 
         likeComment(commentId) {
-    axios.post(`/comments/${commentId}/like`)
-        .then(() => {
-            this.fetchComments();
-        })
-        .catch(error => {
-            console.error("Kļūda pie like:", error);
-        });
-},
+            axios.post(`/comments/${commentId}/like`)
+                .then(res => {
+                    const index = this.comments.findIndex(c => c.id === commentId);
+
+                    if (index !== -1) {
+                        this.comments[index].likes_count = res.data.likes_count;
+                        this.comments[index].is_liked = res.data.is_liked;
+                    }
+                });
+        },
 toggleMenu(commentId) {
     this.activeMenu = this.activeMenu === commentId ? null : commentId;
 },
@@ -489,12 +690,36 @@ openReportModal(commentId) {
 },
 
 submitReport() {
+    let finalReason = this.reportReasonType;
+
+    // ja "cits" → ņem textarea
+    if (this.reportReasonType === 'cits') {
+        if (!this.reportReason) {
+            alert('Lūdzu ievadi iemeslu');
+            return;
+        }
+        finalReason = this.reportReason;
+    }
+
+    if (!this.reportReasonType) {
+        alert('Lūdzu izvēlies iemeslu');
+        return;
+    }
+
     axios.post(`/comments/${this.reportCommentId}/report`, {
-        reason: this.reportReason
+        reason: finalReason
     })
     .then(() => {
         this.reportModalVisible = false;
-        alert('Ziņojums nosūtīts.');
+        this.reportReason = '';
+        this.reportReasonType = '';
+
+        // 🔥 parādām tekstu
+        this.reportSent = true;
+
+        setTimeout(() => {
+            this.reportSent = false;
+        }, 2000);
     })
     .catch(error => {
         alert(error.response?.data?.message || 'Kļūda');
@@ -526,7 +751,6 @@ selectFolder(folderId) {
     return;
 }
 
-    // 🔥 JA NAV → PIEVIENO
     axios.post(`/folders/${folderId}/books`, {
         book_id: this.book.id
     })
@@ -547,6 +771,57 @@ handleClickOutside(event) {
     if (!this.$refs.dropdown) return;
     if (!this.$refs.dropdown.contains(event.target)) {
         this.showFolderDropdown = false;
+    }
+},
+formatDate(date) {
+    const d = new Date(date);
+    const now = new Date();
+    const diff = Math.floor((now - d) / 1000);
+
+    if (diff < 60) return 'tikko';
+    if (diff < 3600) return `${Math.floor(diff / 60)} min`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} h`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)} d`;
+
+    return d.toLocaleDateString();
+},
+addSpoiler() {
+    const start = this.$refs.textarea.selectionStart;
+    const end = this.$refs.textarea.selectionEnd;
+
+    const before = this.comment.substring(0, start);
+    const selected = this.comment.substring(start, end);
+    const after = this.comment.substring(end);
+
+    if (!selected.trim()) {
+        alert("Lūdzu iezīmē tekstu, ko vēlies paslēpt kā spoileri!");
+        return;
+    }
+
+    this.comment = `${before}[spoiler]${selected}[/spoiler]${after}`;
+},
+handleEnter(e) {
+    if (e.shiftKey) return;
+
+    if (!this.comment.trim()) return;
+
+    this.submitFeedback();
+},
+handleScroll() {
+    const scrollY = window.scrollY;
+    if (!this.$refs.commentsToggle) {
+        this.showFloatingCollapse = scrollY > 400;
+        return;
+    }
+    const rect = this.$refs.commentsToggle.getBoundingClientRect();
+    const isVisible =
+        rect.top >= 0 &&
+        rect.bottom <= window.innerHeight;
+
+    if (isVisible) {
+        this.showFloatingCollapse = false;
+    } else {
+        this.showFloatingCollapse = scrollY > 400;
     }
 },
 
@@ -582,6 +857,43 @@ select:disabled {
 }
 svg {
     transition: transform 0.2s ease, color 0.3s ease;
+}
+
+/* KONTEINERS */
+.spoiler-box {
+    cursor: pointer;
+}
+
+/* TEKSTS */
+.spoiler-text {
+    filter: blur(6px);
+    transition: all 0.3s ease;
+    background: #e5e7eb;
+    border-radius: 4px;
+    padding: 0 4px;
+}
+
+/* HOVER → mazāk blur */
+.spoiler-box:hover .spoiler-text {
+    filter: blur(3px);
+}
+
+/* CLICK → pilnībā redzams */
+.spoiler-box.revealed .spoiler-text {
+    filter: blur(0);
+    background: transparent;
+}
+
+textarea {
+    background-image: linear-gradient(
+        to right,
+        transparent 0%,
+        transparent 100%
+    );
+}
+
+textarea::selection {
+    background: #dbeafe; 
 }
 
 

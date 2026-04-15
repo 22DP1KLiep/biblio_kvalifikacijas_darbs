@@ -8,23 +8,31 @@ use Illuminate\Http\Request;
 
 class CommentLikeController extends Controller
 {
-    public function toggle(Comment $comment)
-{
-    $user = auth()->user();
+    public function toggle($id)
+    {
+        $comment = Comment::findOrFail($id);
+        $user = auth()->user();
 
-    $existing = CommentLike::where('comment_id', $comment->id)
-        ->where('user_id', $user->id)
-        ->first();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
-    if ($existing) {
-        $existing->delete();
-    } else {
-        CommentLike::create([
-            'comment_id' => $comment->id,
-            'user_id' => $user->id,
+        $existing = $comment->likes()->where('user_id', $user->id)->first();
+
+        if ($existing) {
+            $existing->delete();
+            $isLiked = false;
+        } else {
+            $comment->likes()->create([
+                'user_id' => $user->id,
+                'comment_id' => $comment->id
+            ]);
+            $isLiked = true;
+        }
+
+        return response()->json([
+            'likes_count' => $comment->likes()->count(),
+            'is_liked' => $isLiked
         ]);
     }
-
-    return response()->json(['success' => true]);
-}
 }

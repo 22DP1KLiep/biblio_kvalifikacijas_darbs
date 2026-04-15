@@ -8,13 +8,21 @@ use Illuminate\Http\Request;
 class CommentController extends Controller
 {
     public function index($bookId)
-{
-    return Comment::with('user')
-        ->withCount('likes') // 👈 ŠIS IR SVARĪGI
-        ->where('book_id', $bookId)
-        ->latest()
-        ->get();
-}
+    {
+        return Comment::with('user')
+            ->withCount('likes')
+            ->where('book_id', $bookId)
+            ->orderByDesc('likes_count')
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($comment) {
+                $comment->is_liked = auth()->check()
+                    ? $comment->likes()->where('user_id', auth()->id())->exists()
+                    : false;
+
+                return $comment;
+            });
+    }
 
     public function store(Request $request, $bookId)
     {
@@ -49,6 +57,34 @@ class CommentController extends Controller
         $comment->delete();
         return response()->noContent();
     }
+
+    public function like($id)
+{
+    $comment = Comment::findOrFail($id);
+    $user = auth()->user();
+
+    if (!$user) {
+        return response()->json(['message' => 'Unauthorized'], 401);
+    }
+
+    $existing = $comment->likes()->where('user_id', $user->id)->first();
+
+    if ($existing) {
+        $existing->delete();
+        $isLiked = false;
+    } else {
+        $comment->likes()->create([
+            'user_id' => $user->id,
+            'comment_id' => $comment->id
+        ]);
+        $isLiked = true;
+    }
+
+    return response()->json([
+        'likes_count' => $comment->likes()->count(),
+        'is_liked' => $isLiked
+    ]);
+}
 
 
 }

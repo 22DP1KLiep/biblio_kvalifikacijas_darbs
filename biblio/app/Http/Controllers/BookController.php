@@ -54,7 +54,11 @@ class BookController extends Controller
         'folders',
         'comments' => function ($query) {
             $query->with('user')
-                ->withCount('likes')
+                ->with(['likes' => function ($q) {
+                    if (auth()->check()) {
+                        $q->where('user_id', auth()->id());
+                    }
+                }])
                 ->orderBy('created_at', 'desc');
         }
     ])->findOrFail($id);
