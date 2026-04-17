@@ -39,6 +39,8 @@ class HandleInertiaRequests extends Middleware
                     'username' => $request->user()->username,
                     'email' => $request->user()->email,
                     'role' => $request->user()->role,
+                    'followers_count' => $request->user()->followers()->count(),
+                    'following_count' => $request->user()->following()->count(),
                 ]
                 : null,
         ],

@@ -66,5 +66,18 @@ class BookController extends Controller
     return response()->json($book);
 }
 
-    
+public function userBooks()
+{
+    $user = auth()->user();
+
+    $books = $user->folders()
+        ->with('books')
+        ->get()
+        ->pluck('books')   // paņem grāmatas no katras mapes
+        ->flatten()        // saliek vienā listē
+        ->unique('id')     // noņem dublikātus
+        ->values();
+
+    return response()->json($books);
+}
 }

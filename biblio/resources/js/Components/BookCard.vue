@@ -1,131 +1,144 @@
 <template>
-    <div
-        @click="!showModal && handleCardClick($event)"
-        class="relative w-full max-w-[400px] rounded-lg overflow-hidden shadow-lg transition transform hover:scale-105 hover:shadow-2xl cursor-pointer"
-    >
+  <div
+    @click="!showModal && handleCardClick($event)"
+    class="group relative w-full max-w-[400px] rounded-lg overflow-hidden shadow-lg transition transform hover:scale-105 hover:shadow-2xl cursor-pointer"
+  >
 
-    <!-- Attēls -->
-        <img
-            :src="props.book.image ? `/${props.book.image}` : 'https://via.placeholder.com/300'"
-            :alt="props.book.title"
-            class="w-full h-[400px] object-cover"
-        />
+    <!-- IMAGE -->
+    <img
+      :src="book.image ? `/${book.image}` : 'https://via.placeholder.com/300'"
+      :alt="book.title"
+      class="w-full h-[400px] object-cover"
+    />
 
-        <!-- Gradients un teksts -->
-        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent text-white px-4 py-4 pointer-events-none">
-            <h3 class="text-lg font-semibold leading-tight mb-1" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8)">
-                {{ props.book.title }}
-            </h3>
-            <p class="text-xs text-gray-200 italic mb-1" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.85)">
-                by {{ props.book.author }}
-            </p>
+    <!-- OVERLAY -->
+    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent text-white px-4 py-4 pointer-events-none">
+      
+      <h3 class="text-lg font-semibold mb-1">
+        {{ book.title }}
+      </h3>
 
-            <!-- Žanri -->
-            <div v-if="props.book.genres?.length" class="flex flex-wrap gap-1">
+      <p class="text-xs text-gray-200 italic mb-1">
+        by {{ book.author }}
+      </p>
+
+      <!-- GENRES -->
+      <div v-if="book.genres?.length" class="flex flex-wrap gap-1">
         <span
-            v-for="genre in props.book.genres"
-            :key="genre.id"
-            class="inline-block bg-white/30 text-white text-[10px] px-2 py-[2px] rounded-full border border-white/50"
-            style="backdrop-filter: blur(4px); text-shadow: none;"
+          v-for="genre in book.genres"
+          :key="genre.id"
+          class="bg-white/30 text-white text-[10px] px-2 py-[2px] rounded-full border border-white/50"
         >
           {{ genre.name }}
         </span>
-            </div>
+      </div>
 
-            <!-- Apraksts -->
-            <p
-                v-if="props.book.description"
-                class="text-[10px] text-gray-300 mt-1 line-clamp-2"
-                style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);"
-            >
-                {{ props.book.description.slice(0, 70) }}...
-            </p>
+      <!-- DESCRIPTION -->
+      <p
+        v-if="book.description"
+        class="text-[10px] text-gray-300 mt-1 line-clamp-2"
+      >
+        {{ book.description.slice(0, 70) }}...
+      </p>
+    </div>
+
+    <!-- DELETE BUTTON -->
+    <button
+        v-if="props.folderId"
+        @click.stop="showModal = true"
+        class="delete-button absolute top-3 right-3 bg-black/60 hover:bg-red-500 text-white w-8 h-8 flex items-center justify-center rounded-full z-20 opacity-0 group-hover:opacity-100 transition"
+        title="Izņemt no mapes"
+        >
+        ✕
+    </button>
+
+    <!-- MODAL -->
+    <div
+    v-if="showModal"
+    @click.stop
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+    >
+    
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+
+        <!-- HEADER -->
+        <div class="bg-[#213555] text-white px-6 py-4 flex items-center gap-3">
+        <span class="material-icons">delete</span>
+        <h2 class="text-lg font-semibold">Izņemt grāmatu</h2>
         </div>
 
-        <!-- Miskastes ikona (dzēšana no mapes) -->
+        <!-- CONTENT -->
+        <div class="p-6 text-gray-700 text-sm">
+        Vai tiešām vēlies izņemt šo grāmatu no mapes?
+        <br>
+        <span class="text-gray-400 text-xs">Grāmata netiks dzēsta, tikai izņemta no mapes.</span>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="flex justify-end gap-3 px-6 pb-6">
+
         <button
-            v-if="props.folderId"
-            @click.stop="showModal = true"
-            class="delete-button absolute top-2 right-2 bg-black/60 hover:bg-red-600 text-white p-1 rounded-full z-20"
-            title="Izņemt no mapes"
+            @click.stop="showModal = false"
+            class="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition text-sm"
         >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                 stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M10 3h4a1 1 0 011 1v1H9V4a1 1 0 011-1z"/>
-            </svg>
+            Atcelt
         </button>
 
-        <!-- MODĀLIS -->
-        <div
-            v-if="showModal"
-            @click.stop
-            class="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
-        >            <div class="bg-white p-6 rounded-lg shadow-xl w-80 text-center">
-                <h3 class="text-lg font-semibold text-gray-800 mb-3">Apstiprinājums</h3>
-                <p class="text-gray-600 mb-5">Vai tiešām vēlies izņemt šo grāmatu no mapes?</p>
-                <div class="flex justify-center gap-4">
-                    <button
-                        @click="showModal = false"
-                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm"
-                    >
-                        Atcelt
-                    </button>
-                    <button
-                        @click="confirmRemoveFromFolder"
-                        class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded text-sm"
-                    >
-                        Izņemt
-                    </button>
-                </div>
-            </div>
+        <button
+            @click.stop="confirmRemoveFromFolder"
+            class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition text-sm flex items-center gap-1"
+        >
+            <span class="material-icons text-[16px]">delete</span>
+            Izņemt
+        </button>
+
         </div>
+
     </div>
+    </div>
+
+  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
-import { defineProps, defineEmits } from 'vue'
 import axios from 'axios'
 
 const emit = defineEmits(['removed'])
 
 const props = defineProps({
-    book: Object,
-    folderId: Number
+  book: Object,
+  folderId: Number
 })
 
 const showModal = ref(false)
 
 function handleCardClick(event) {
-    // Ja klikšķina uz miskastes pogas, neko nedari
-    if (event.target.closest('.delete-button')) return
-    inspectBook(props.book.id)
+  if (event.target.closest('.delete-button')) return
+  router.visit(`/book/${props.book.id}`)
 }
 
-function inspectBook(id) {
-    router.visit(`/book/${id}`)
-}
+async function confirmRemoveFromFolder() {
+  try {
+    await axios.delete(`/folders/${props.folderId}/books/${props.book.id}`)
 
-function confirmRemoveFromFolder() {
-    axios.delete(`/folders/${props.folderId}/books/${props.book.id}`)
-        .then(() => {
-            emit('removed', props.book.id)
-            showModal.value = false
-        })
-        .catch(error => {
-            console.error("Kļūda izņemot grāmatu no mapes:", error)
-            showModal.value = false
-        })
+    emit('removed', props.book.id)
+    showModal.value = false
+
+  } catch (error) {
+    console.error(error)
+    showModal.value = false
+  }
 }
 </script>
 
 <style scoped>
 .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>

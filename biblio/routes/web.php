@@ -162,6 +162,8 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('KabinetsView');
     });
 
+    Route::middleware('auth')->put('/user/update', [UserController::class, 'update']);
+
 
     /*
     |--------------------------------------------------------------------------
@@ -203,6 +205,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/folders/{folder}/books', [FolderController::class, 'addBook']);
     Route::delete('/folders/{folder}/books/{book}', [FolderController::class, 'removeBook']);
     Route::delete('/folders/{folder}', [FolderController::class, 'destroy']);
+    Route::get('/books', [BookController::class, 'userBooks']);
+
+    // preview (home)
+    Route::get('/books/preview', [BookController::class, 'index']);
+
+    // visas sistēmas grāmatas
+    Route::get('/books/all', [BookController::class, 'get_all']);
+
+    // lietotāja bibliotēka
+    Route::get('/books/user', [BookController::class, 'userBooks']);
+
+    Route::patch('/folders/{folder}/visibility', [FolderController::class, 'toggleVisibility']);
 
 
     /*
@@ -246,8 +260,6 @@ Route::middleware('auth')->group(function () {
 | PUBLIC API ROUTES
 |--------------------------------------------------------------------------
 */
-
-Route::get('/books', [BookController::class, 'index']);
 Route::get('/get/all/books', [BookController::class, 'get_all']);
 Route::get('/books/{id}', [BookController::class, 'show']);
 Route::get('/books/{book}/ratings', [RatingController::class, 'index']);

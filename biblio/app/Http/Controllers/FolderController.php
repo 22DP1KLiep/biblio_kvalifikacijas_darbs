@@ -23,11 +23,17 @@ class FolderController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255'
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:folders,name,NULL,id,user_id,' . auth()->id()
+            ]
         ]);
 
         $folder = Auth::user()->folders()->create([
-            'name' => $request->name
+            'name' => $request->name,
+            'is_public' => $request->is_public ?? false
         ]);
 
         return response()->json($folder);
@@ -35,7 +41,7 @@ class FolderController extends Controller
 
     public function books(Folder $folder)
     {
-        if ($folder->user_id !== Auth::id()) {
+        if ($folder->user_id !== Auth::id() && !$folder->is_public) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -89,6 +95,20 @@ class FolderController extends Controller
         $folder->delete();
 
         return response()->json(['message' => 'Mape dzēsta veiksmīgi']);
+    }
+
+    public function toggleVisibility(Folder $folder)
+    {
+        if ($folder->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $folder->is_public = !$folder->is_public;
+        $folder->save();
+
+        return response()->json([
+            'is_public' => $folder->is_public
+        ]);
     }
 
 
