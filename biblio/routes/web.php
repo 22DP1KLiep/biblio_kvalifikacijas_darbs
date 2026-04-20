@@ -166,7 +166,8 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('auth')->put('/user/update', [UserController::class, 'update']);
 
-
+    Route::post('/user/avatar', [UserController::class, 'updateAvatar']);
+    Route::post('/user/avatar', [UserController::class, 'uploadAvatar'])->middleware('auth');
     /*
     |--------------------------------------------------------------------------
     | RATINGS

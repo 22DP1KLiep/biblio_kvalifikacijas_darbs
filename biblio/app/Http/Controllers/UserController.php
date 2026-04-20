@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+
 
 class UserController extends Controller
 {
@@ -30,6 +32,7 @@ class UserController extends Controller
         'profileUser' => [
             'id' => $user->id,
             'username' => $user->username,
+            'avatar' => $user->avatar,
             'followers_count' => $user->followers()->count(),
             'following_count' => $user->following()->count(),
         ],
@@ -130,6 +133,25 @@ public function update(Request $request)
             'email' => $user->email,
         ]
     ]);
+}
+
+
+public function uploadAvatar(Request $request)
+{
+    $request->validate([
+        'avatar' => 'required|image|max:5120'
+    ]);
+
+    $path = $request->file('avatar')->store('avatars', 'public');
+
+    $user = Auth::user();
+    $user->avatar = $path;
+    $user->save();
+
+    return response()->json([
+        'avatar' => $path
+    ]);
+    
 }
 
 }

@@ -13,10 +13,16 @@
 
           <!-- LEFT -->
           <div class="flex items-center gap-5">
-            <img
-              :src="`https://ui-avatars.com/api/?name=${user.username}`"
-              class="w-24 h-24 rounded-full border-4 border-white shadow"
-            />
+            <div class="flex flex-col items-center">
+
+  <img
+    :src="user.avatar 
+      ? `/storage/${user.avatar}` 
+      : `https://ui-avatars.com/api/?name=${user.username}`"
+    class="w-24 h-24 rounded-full border-4 border-white shadow"
+  />
+
+</div>
 
             <div>
 
@@ -127,7 +133,7 @@
 
     </div>
 
-      <!-- 📁 MAPES -->
+      <!-- MAPES -->
       <div v-if="activeTab === 'folders'" class="mt-6">
 
         <!-- NAV ATVERTE MAPE -->
@@ -239,7 +245,7 @@
           <!-- HEADER -->
           <div class="relative mb-10 border-b pb-6">
 
-            <!-- 🔥 TOGGLE -->
+            <!--  TOGGLE -->
             <div class="absolute top-2 right-2 flex items-center gap-2">
 
               <!-- PRIVĀTA -->
@@ -345,6 +351,28 @@
   <h2 class="text-xl font-semibold text-[#213555] mb-6">
     Rediģēt profilu
   </h2>
+  <!-- AVATAR -->
+<div class="flex flex-col items-center mb-6">
+
+  <img
+    :src="user.avatar 
+      ? `/storage/${user.avatar}` 
+      : `https://ui-avatars.com/api/?name=${user.username}`"
+    class="w-24 h-24 rounded-full border-4 border-white shadow"
+  />
+
+  <label
+    class="mt-3 cursor-pointer text-sm text-[#213555] hover:underline"
+  >
+    Mainīt profila bildi
+    <input
+      type="file"
+      @change="uploadAvatar"
+      class="hidden"
+    />
+  </label>
+
+</div>
 
   <div class="space-y-4">
 
@@ -722,4 +750,28 @@ const isUsernameValid = (username) =>
   /^[A-Za-z0-9]+$/.test(username) &&
   !/^\d+$/.test(username) &&
   username.length >= 4
+
+  const uploadAvatar = async (e) => {
+  const file = e.target.files[0]
+
+  console.log('FILE:', file) // 🔥 ŠIS IR 1. SOLIS
+
+  if (!file) return
+
+  const formData = new FormData()
+  formData.append('avatar', file)
+
+  try {
+    const res = await axios.post('/user/avatar', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+
+    user.value.avatar = res.data.avatar
+
+  } catch (e) {
+    console.log('ERROR:', e.response.data) // 🔥 ŠIS IR 3. SOLIS
+  }
+}
 </script>

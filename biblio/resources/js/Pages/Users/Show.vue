@@ -71,9 +71,12 @@ const closeFolder = () => {
           <div class="flex items-center gap-6">
 
             <!-- AVATAR -->
-            <div class="w-32 h-32 rounded-full bg-[#213555] text-white flex items-center justify-center text-5xl font-bold shadow-lg border-4 border-white">
-              {{ profileUser.username.charAt(0).toUpperCase() }}
-            </div>
+            <img
+              :src="profileUser.avatar 
+                ? `/storage/${profileUser.avatar}` 
+                : `https://ui-avatars.com/api/?name=${profileUser.username}`"
+              class="w-32 h-32 rounded-full object-cover border-4 border-white shadow"
+            />
 
             <div>
               <h1 class="text-3xl font-bold text-[#213555]">
