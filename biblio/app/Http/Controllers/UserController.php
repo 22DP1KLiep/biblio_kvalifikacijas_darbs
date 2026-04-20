@@ -34,7 +34,7 @@ class UserController extends Controller
             'following_count' => $user->following()->count(),
         ],
         'isFollowing' => $isFollowing,
-        'publicFolders' => $publicFolders, // 🔥 ŠIS TRŪKA
+        'publicFolders' => $publicFolders,
     ]);
 }
 public function search(Request $request)

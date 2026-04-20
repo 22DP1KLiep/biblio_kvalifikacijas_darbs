@@ -111,5 +111,19 @@ class FolderController extends Controller
         ]);
     }
 
+    public function show(Folder $folder)
+    {
+        if ($folder->user_id !== auth()->id() && !$folder->is_public) {
+            abort(403);
+        }
+
+        $folder->load('books.genres');
+
+        return Inertia::render('Folders/Show', [
+            'folder' => $folder,
+            'books' => $folder->books,
+        ]);
+    }
+
 
 }

@@ -44,6 +44,8 @@ Route::get('/auth', fn() => Inertia::render('Auth/AuthForm'))
 
 Route::get('/login', fn () => redirect('/auth')); // Pāradresācija
 
+Route::get('/folders/{id}', [FolderController::class, 'show']);
+
 
 /*
 |--------------------------------------------------------------------------
