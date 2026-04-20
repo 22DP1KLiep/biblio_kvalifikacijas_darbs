@@ -1,4 +1,5 @@
 <script setup>
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { router } from '@inertiajs/vue3'
 
 defineProps({
@@ -14,54 +15,70 @@ const openNotification = (n) => {
     router.get(`/users/${n.from_user_id}`)
   }
 }
+
+const goBack = () => {
+  window.history.back()
+}
 </script>
 
 <template>
-  <div class="notifications-page">
+  <AuthenticatedLayout>
 
-    <div class="notifications-header">
-      <h2>Notifikācijas</h2>
-    </div>
+    <div class="notifications-page">
 
-    <div v-if="notifications.length" class="notifications-list">
+      <!-- HEADER -->
+      <div class="notifications-header">
+        <button @click="goBack" class="back-btn">
+          ← Atpakaļ
+        </button>
 
-      <div
-        v-for="n in notifications"
-        :key="n.id"
-        class="notification-card"
-        :class="{ unread: !n.is_read }"
-        @click="openNotification(n)"
-      >
-        <div class="icon">
-          <span v-if="n.type === 'message'">💬</span>
-          <span v-if="n.type === 'follow'">👤</span>
+        <h2>🔔 Notifikācijas</h2>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div v-if="notifications.length" class="notifications-list">
+
+        <div
+          v-for="n in notifications"
+          :key="n.id"
+          class="notification-card"
+          :class="{ unread: !n.is_read }"
+          @click="openNotification(n)"
+        >
+          <div class="icon">
+            <span v-if="n.type === 'message'">💬</span>
+            <span v-if="n.type === 'follow'">👤</span>
+          </div>
+
+          <div class="content">
+            <p v-if="n.type === 'message'">
+              <strong>{{ n.from_user?.username }}</strong>
+              uzrakstīja tev ziņu
+            </p>
+
+            <p v-if="n.type === 'follow'">
+              <strong>{{ n.from_user?.username }}</strong>
+              sāka tev sekot
+            </p>
+
+            <span class="time">
+              {{ new Date(n.created_at).toLocaleString() }}
+            </span>
+          </div>
+
         </div>
 
-        <div class="content">
-          <p v-if="n.type === 'message'">
-            <strong>{{ n.from_user?.username }}</strong>
-            uzrakstīja tev ziņu
-          </p>
+      </div>
 
-          <p v-if="n.type === 'follow'">
-            <strong>{{ n.from_user?.username }}</strong>
-            sāka tev sekot
-          </p>
-
-          <span class="time">
-            {{ new Date(n.created_at).toLocaleString() }}
-          </span>
-        </div>
+      <!-- EMPTY -->
+      <div v-else class="empty-state">
+        <div class="empty-icon">🔔</div>
+        <p>Tev vēl nav nevienas notifikācijas</p>
       </div>
 
     </div>
 
-    <div v-else class="empty-state">
-      <div class="empty-icon">🔔</div>
-      <p>Tev vēl nav nevienas notifikācijas</p>
-    </div>
-
-  </div>
+  </AuthenticatedLayout>
 </template>
 
 <style scoped>
@@ -132,4 +149,25 @@ const openNotification = (n) => {
   font-size: 40px;
   margin-bottom: 10px;
 }
+
+.notifications-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.back-btn {
+  background: #213555;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.back-btn:hover {
+  background: #3E5879;
+} 
 </style>

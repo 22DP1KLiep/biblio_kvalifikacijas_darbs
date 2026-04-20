@@ -5,7 +5,6 @@ import { Link } from '@inertiajs/vue3'
 defineProps({
   users: Array,
   privateChats: Array,
-  channels: Array,
 })
 </script>
 
@@ -21,11 +20,11 @@ defineProps({
           href="/chats/new"
           class="mb-4 px-3 py-2 bg-blue-500 text-white rounded text-center"
         >
-          + New Chat
+          + Jauns čats
         </Link>
 
         <div>
-          <p class="text-xs text-gray-500 uppercase mb-2">Private</p>
+          <p class="text-xs text-gray-500 uppercase mb-2">Privātais</p>
           <ul class="space-y-1">
             <li v-for="chat in privateChats" :key="chat.id">
               <Link
@@ -38,22 +37,35 @@ defineProps({
           </ul>
         </div>
       </aside>
-
-      <!-- USER LIST -->
       <main class="flex-1 p-6">
-        <h2 class="text-lg font-semibold mb-4">Start a new chat</h2>
 
-        <div class="bg-white rounded shadow divide-y">
-          <Link
-            v-for="user in users"
-            :key="user.id"
-            :href="`/chats/start/${user.id}`"
-            class="block px-4 py-3 hover:bg-gray-50"
-          >
-            {{ user.username }}
-          </Link>
-        </div>
-      </main>
+  <!-- HEADER -->
+  <div class="flex items-center gap-3 mb-6">
+    <Link
+      href="/chats"
+      class="text-blue-600 hover:text-blue-800 text-lg"
+    >
+      ←
+    </Link>
+
+    <h2 class="text-lg font-semibold text-[#213555]">
+      Sākt jaunu čatu
+    </h2>
+  </div>
+
+  <!-- USER LIST -->
+  <div class="bg-white rounded shadow divide-y">
+    <Link
+      v-for="user in users"
+      :key="user.id"
+      :href="`/chats/start/${user.id}`"
+      class="block px-4 py-3 hover:bg-gray-50"
+    >
+      {{ user.username }}
+    </Link>
+  </div>
+
+</main>
 
     </div>
   </GuestLayout>

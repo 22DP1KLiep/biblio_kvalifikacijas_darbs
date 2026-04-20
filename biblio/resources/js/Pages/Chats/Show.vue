@@ -13,7 +13,7 @@ const props = defineProps({
   type: String,
   messages: Array,
   privateChats: Array,
-  channels: Array,
+  
 })
 
 const form = useForm({ body: '' })
@@ -79,25 +79,25 @@ const sendMessage = () => {
       <!-- SIDEBAR -->
 <aside class="w-72 bg-white border-r p-4 flex flex-col">
 
-  <h2 class="text-lg font-semibold mb-4">Chats</h2>
+  <h2 class="text-lg font-semibold mb-4">Čati</h2>
 
   <!-- NEW CHAT BUTTON -->
   <Link
     href="/chats/new"
     class="mb-4 inline-flex items-center justify-center px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
   >
-    + New Chat
+    + Jauns čats
   </Link>
 
         <!-- Private chats -->
         <div class="mb-6">
-          <p class="text-xs text-gray-500 uppercase mb-2">Private</p>
+          <p class="text-xs text-gray-500 uppercase mb-2">Privātie čati</p>
           <ul class="space-y-1">
-            <li v-for="chat in privateChats" :key="chat.id">
+            <li v-for="chat in privateChats" :key="chat.id || Math.random()">
               <Link
                 :href="`/chats/${chat.id}`"
                 class="flex justify-between items-center px-3 py-2 rounded"
-                :class="chat.id === activeConversationId
+                :class="chat.id === conversationId
                   ? 'bg-blue-100 text-blue-700 font-semibold'
                   : 'hover:bg-gray-100'"
               >
@@ -117,43 +117,12 @@ const sendMessage = () => {
               v-if="privateChats.length === 0"
               class="text-sm text-gray-400 px-3"
             >
-              No private chats
+              Nav privāto čatu
             </li>
           </ul>
         </div>
 
-        <!-- Channels -->
-        <div>
-          <p class="text-xs text-gray-500 uppercase mb-2">Channels</p>
-          <ul class="space-y-1">
-            <li v-for="channel in channels" :key="channel.id">
-              <Link
-                :href="`/chats/${channel.id}`"
-                class="flex justify-between items-center px-3 py-2 rounded"
-                :class="channel.id === activeConversationId
-                  ? 'bg-blue-100 text-blue-700 font-semibold'
-                  : 'hover:bg-gray-100'"
-              >
-                <span># {{ channel.title }}</span>
-
-                <span
-                  v-if="channel.unread > 0"
-                  class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full"
-                >
-                  {{ channel.unread }}
-                </span>
-              </Link>
-
-            </li>
-
-            <li
-              v-if="channels.length === 0"
-              class="text-sm text-gray-400 px-3"
-            >
-              No channels
-            </li>
-          </ul>
-        </div>
+        
       </aside>
 
       <!-- CHAT CONTENT -->
@@ -162,7 +131,9 @@ const sendMessage = () => {
         <!-- HEADER -->
         <header class="bg-white border-b px-6 py-4">
           <h2 class="font-semibold">{{ title }}</h2>
-          <p class="text-xs text-gray-500">{{ type }}</p>
+          <p class="text-xs text-gray-500">
+            {{ type === 'private' ? 'Privāts čats' : '' }}
+          </p>
         </header>
 
         <!-- MESSAGES -->
@@ -170,7 +141,7 @@ const sendMessage = () => {
 
           <div
             v-for="msg in messages"
-            :key="msg.id"
+            :key="msg.id || Math.random()"
             class="max-w-xl"
             :class="msg.isMine ? 'ml-auto text-right' : ''"
           >
@@ -197,7 +168,7 @@ const sendMessage = () => {
         >
           <input
             v-model="form.body"
-            placeholder="Type a message..."
+            placeholder="Rakstīt ziņu..."
             class="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:ring"
           />
           <button
@@ -205,7 +176,7 @@ const sendMessage = () => {
             class="bg-blue-500 text-white px-4 py-2 rounded-full disabled:opacity-50"
             :disabled="!form.body"
           >
-            Send
+            Sūtīt
           </button>
         </form>
 

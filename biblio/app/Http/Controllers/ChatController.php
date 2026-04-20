@@ -175,7 +175,6 @@ class ChatController extends Controller
 
     return [
         'privateChats' => $privateChats,
-        'channels' => $channels,
     ];
 }
 
@@ -225,7 +224,9 @@ public function new(Request $request)
 {
     $authUser = $request->user();
 
-    $users = \App\Models\User::where('id', '!=', $authUser->id)
+    $followingIds = $authUser->following()->pluck('following_id');
+
+    $users = \App\Models\User::whereIn('id', $followingIds)
         ->where('username', '!=', 'welcomebot')
         ->select('id', 'username')
         ->orderBy('username')
