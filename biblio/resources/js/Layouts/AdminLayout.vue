@@ -18,7 +18,7 @@ const page = usePage()
                         p-6 flex-shrink-0"
                 >
                     <h2 class="text-lg font-bold text-[#213555] mb-6">
-                        Admin
+                        Administrātors
                     </h2>
 
                     <nav class="space-y-1">
@@ -27,7 +27,7 @@ const page = usePage()
                             class="block px-4 py-2 rounded-md text-sm font-medium
                                 text-[#213555] hover:bg-[#e6ecf3]"
                         >
-                            📊 Dashboard
+                            Informācijas panelis
                         </Link>
 
                         <Link
@@ -35,14 +35,14 @@ const page = usePage()
                             class="block px-4 py-2 rounded-md text-sm font-medium
                                 text-[#213555] hover:bg-[#e6ecf3]"
                         >
-                            👤 Users
+                            Lietotāji
                         </Link>
 
                         <Link
                             href="/admin/reports"
-                            class="flex items-center gap-2 px-4 py-2 rounded-lg transition hover:bg-gray-100"
-                        >
-                            🚩 Reports
+                            class="block px-4 py-2 rounded-md text-sm font-medium text-[#213555] hover:bg-[#e6ecf3]"
+                            >
+                            Ziņojumi
                         </Link>
 
                         <Link
@@ -50,7 +50,7 @@ const page = usePage()
                             class="block px-4 py-2 mt-6 text-sm text-gray-500
                                 hover:bg-gray-100 rounded-md"
                         >
-                            ⬅ Back to site
+                            Atpakaļ uz mājaslapu
                         </Link>
                     </nav>
             </aside>

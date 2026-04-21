@@ -3,42 +3,22 @@ import { ref, computed, watch } from 'vue'
 import { Link, usePage, router } from '@inertiajs/vue3'
 import axios from 'axios'
 
-/* =========================
-   GLOBAL PAGE DATA
-========================= */
-
 const page = usePage()
 
 const user = computed(() => page.props?.auth?.user ?? null)
+const notificationsCount = computed(() => page.props?.notificationsCount ?? 0)
 
-const notificationsCount = computed(() =>
-  page.props?.notificationsCount ?? 0
-)
-
-/* =========================
-   NAVBAR STATE
-========================= */
-
-const isMenuActive = ref(false)
-const isSearchOpen = ref(false)
 const searchQuery = ref('')
 const activeTab = ref('books')
-
-/* =========================
-   SEARCH STATE
-========================= */
 
 const userResults = ref([])
 const isLoadingUsers = ref(false)
 
-/* =========================
-   WATCH USER SEARCH
-========================= */
 
-watch(searchQuery, async (newValue) => {
+watch(searchQuery, async (q) => {
   if (activeTab.value !== 'users') return
 
-  if (!newValue.trim()) {
+  if (!q.trim()) {
     userResults.value = []
     return
   }
@@ -46,32 +26,18 @@ watch(searchQuery, async (newValue) => {
   isLoadingUsers.value = true
 
   try {
-    const response = await axios.get('/api/users/search', {
-      params: { q: newValue }
+    const res = await axios.get('/api/users/search', {
+      params: { q }
     })
-
-    userResults.value = response.data
-  } catch (e) {
+    userResults.value = res.data
+  } catch {
     userResults.value = []
   }
 
   isLoadingUsers.value = false
 })
 
-/* =========================
-   NAVIGATION FUNCTIONS
-========================= */
-
-const toggleNav = () => {
-  isMenuActive.value = !isMenuActive.value
-}
-
-const toggleSearch = () => {
-  isSearchOpen.value = !isSearchOpen.value
-  searchQuery.value = ''
-  userResults.value = []
-}
-
+// 🔎 SUBMIT SEARCH
 const handleSearch = () => {
   const q = searchQuery.value.trim()
   if (!q) return
@@ -81,23 +47,32 @@ const handleSearch = () => {
   } else {
     router.get('/users', { q })
   }
-
-  isSearchOpen.value = false
 }
 </script>
 
 <template>
-  <nav>
+  <nav class="navbar">
 
-    <!-- SEARCH MODE -->
-    <template v-if="isSearchOpen">
+    <!-- LEFT -->
+    <div class="nav-left">
+      <h1 class="logo">Biblio</h1>
 
-      <div class="logo-search">
-        <h1><a href="/">Biblio</a></h1>
+      <div class="nav-links">
+        <Link href="/">Sākums</Link>
+        <Link href="/gramatas">Grāmatas</Link>
+        <Link href="/kabinets">Kabinets</Link>
+      </div>
+    </div>
 
+    <!-- RIGHT SIDE -->
+    <div class="nav-right">
+
+      <!-- SEARCH -->
+      <div class="search-wrapper">
+
+        <!-- TABS -->
         <div class="search-tabs">
           <button
-            type="button"
             :class="{ active: activeTab === 'books' }"
             @click="activeTab = 'books'"
           >
@@ -105,7 +80,6 @@ const handleSearch = () => {
           </button>
 
           <button
-            type="button"
             :class="{ active: activeTab === 'users' }"
             @click="activeTab = 'users'"
           >
@@ -113,339 +87,200 @@ const handleSearch = () => {
           </button>
         </div>
 
-        <form @submit.prevent="handleSearch" class="search-inline">
+        <!-- INPUT -->
+        <div class="search-box">
+          <span class="material-icons">search</span>
+
           <input
-            type="text"
             v-model="searchQuery"
+            @keyup.enter="handleSearch"
             placeholder="Meklēt..."
-            class="search-input"
-            autofocus
           />
-          <div 
-            v-if="activeTab === 'users' && userResults.length"
-            class="search-dropdown"
+        </div>
+
+        <!-- DROPDOWN USERS -->
+        <div v-if="activeTab === 'users' && userResults.length" class="search-dropdown">
+          <div
+            v-for="u in userResults"
+            :key="u.id"
+            class="search-item"
+            @click="router.get(`/users/${u.id}`)"
           >
-            <div
-              v-for="u in userResults"
-              :key="u.id"
-              class="search-item"
-              @click="router.get(`/users/${u.id}`); isSearchOpen = false"
-            >
-              <strong>{{ u.name }}</strong>
-              <span>@{{ u.username }}</span>
-            </div>
+            <strong>{{ u.username }}</strong>
+            <span>{{ u.email }}</span>
           </div>
-        </form>
+        </div>
 
-        <button class="search-toggle" @click="toggleSearch">
-          ✕
-        </button>
       </div>
 
-    </template>
+      <!-- CHAT -->
+      <Link v-if="user" href="/chats" class="icon-btn">
+        <span class="material-icons">chat</span>
+      </Link>
 
-    <!-- NORMAL MODE -->
-    <template v-else>
+      <!-- NOTIFICATIONS -->
+      <Link v-if="user" href="/notifications" class="icon-btn">
+        <span class="material-icons">notifications</span>
 
-      <div class="logo-search">
-  <h1><a href="/">Biblio</a></h1>
+        <span v-if="notificationsCount > 0" class="badge">
+          {{ notificationsCount }}
+        </span>
+      </Link>
 
-  <button class="search-toggle" @click="toggleSearch">
-    🔍
-  </button>
-</div>
+      <!-- PROFILE -->
+      <Link v-if="user" :href="`/users/${user.id}`" class="avatar">
+        {{ user.username.charAt(0).toUpperCase() }}
+      </Link>
 
-      <ul>
-        <li><a href="/gramatas">Grāmatas</a></li>
-        <li><a href="/kabinets">Mans kabinets</a></li>
-        <li v-if="user">
-    <Link href="/chats">
-      Čati
-    </Link>
-  </li>
-  <li v-if="user" class="notification-item">
-  <Link href="/notifications" class="notification-link">
-
-    <span class="material-icons">notifications</span>
-
-    <span v-if="notificationsCount > 0" class="badge">
-      {{ notificationsCount }}
-    </span>
-
-  </Link>
-</li>
-
-        <li v-if="user">
-          <Link :href="`/users/${user.id}`">
-            Mans profils
-          </Link>
-        </li>
-
-        <li v-if="user && user.role === 'admin'">
-          <Link href="/admin" class="admin-link">
-            Admin
-          </Link>
-        </li>
-
-        <li v-if="!user">
-          <a href="/auth">Ienākt</a>
-        </li>
-
-        <li v-else>
-          <Link
-            href="/logout"
-            method="post"
-            as="button"
-            class="logout-button"
-          >
-            Iziet
-          </Link>
-        </li>
-      </ul>
-
-      <div class="hamburger" @click="toggleNav">
-        <span class="line"></span>
-        <span class="line"></span>
-        <span class="line"></span>
-      </div>
-
-    </template>
+    </div>
 
   </nav>
-
-  <!-- Mobile menu -->
-  <div class="menubar" :class="{ active: isMenuActive }">
-    <ul>
-      <li><a href="/gramatas">Grāmatas</a></li>
-      <li><a href="/kabinets">Mans kabinets</a></li>
-      <li v-if="user">
-      <Link href="/chats">
-        Čati
-      </Link>
-    </li>
-
-      <li v-if="user">
-        <Link :href="`/users/${user.id}`">
-          Mans profils
-        </Link>
-      </li>
-
-      <li v-if="user && user.role === 'admin'">
-        <Link href="/admin">Admin panelis</Link>
-      </li>
-
-      <li v-if="!user">
-        <a href="/auth">Ienākt</a>
-      </li>
-
-      <li v-else>
-        <Link
-          href="/logout"
-          method="post"
-          as="button"
-          class="logout-button"
-        >
-          Iziet
-        </Link>
-      </li>
-    </ul>
-  </div>
 </template>
 
 <style scoped>
-nav {
-  background-color: rgb(33, 53, 85);
-  padding: 5px 2%;
+.navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 55px;
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
-              rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+  padding: 10px 3%;
+  background: #213555;
+  color: white;
 }
 
-.logo-search {
+/* LEFT */
+.nav-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
 }
 
-nav h1 {
-  font-size: 1.5rem;
-  background: white;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.logo {
+  font-size: 20px;
+  font-weight: bold;
 }
 
-nav ul {
+.nav-links {
   display: flex;
-  list-style: none;
+  gap: 15px;
 }
 
-nav ul li {
-  margin-left: 0.5rem;
-}
-
-nav ul li a {
+.nav-links a {
+  color: white;
   text-decoration: none;
-  color: #fff;
-  font-size: 95%;
-  padding: 4px 8px;
-  border-radius: 5px;
+  font-size: 14px;
 }
 
-nav ul li a:hover {
+.nav-links a:hover {
   color: #e6722a;
 }
 
-.search-toggle {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 18px;
-  cursor: pointer;
+/* RIGHT */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
-.search-inline {
-  flex: 1;
-}
-
-.search-input {
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  outline: none;
+/* SEARCH */
+.search-wrapper {
+  position: relative;
 }
 
 .search-tabs {
   display: flex;
+  font-size: 11px;
 }
 
 .search-tabs button {
   background: transparent;
   border: none;
-  color: white;
-  padding: 4px 10px;
+  color: #ccc;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
+  padding: 2px 6px;
 }
 
 .search-tabs button.active {
-  border-bottom: 2px solid #e6722a;
   color: #e6722a;
 }
 
-.logout-button {
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #3E5879;
+  padding: 5px 10px;
+  border-radius: 20px;
+  width: 220px;
+}
+
+.search-box input {
   background: transparent;
   border: none;
+  outline: none;
   color: white;
-  cursor: pointer;
-}
-
-.logout-button:hover {
-  color: #e6722a;
-}
-
-.admin-link:hover {
-  color: #e6722a;
-}
-
-.hamburger {
-  display: none;
-  cursor: pointer;
-}
-
-.hamburger .line {
-  width: 25px;
-  height: 2px;
-  background: #fff;
-  display: block;
-  margin: 7px auto;
-}
-
-.menubar {
-  position: absolute;
-  top: 0;
-  left: -60%;
-  width: 60%;
-  height: 100vh;
-  padding: 20% 0;
-  background: #fff;
-  transition: all .5s ease-in;
-  z-index: 2;
-}
-
-.menubar.active {
-  left: 0;
-}
-
-.menubar ul {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.menubar li {
-  margin: 10px 0;
-}
-
-@media screen and (max-width: 790px) {
-  .hamburger {
-    display: block;
-  }
-  nav ul {
-    display: none;
-  }
+  margin-left: 6px;
+  width: 100%;
 }
 
 .search-dropdown {
   position: absolute;
+  top: 60px;
+  width: 220px;
   background: white;
-  width: 300px;
-  margin-top: 4px;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  z-index: 10;
 }
 
 .search-item {
-  padding: 8px 12px;
+  padding: 8px;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
 }
 
 .search-item:hover {
   background: #f3f3f3;
 }
 
-.search-item span {
-  font-size: 12px;
-  color: #666;
+/* ICONS */
+.icon-btn {
+  position: relative;
+  color: white;
+
+  display: flex;          
+  align-items: center;    
+  height: 32px;           
 }
 
-.notification-link {
-  position: relative;
+.icon-btn:hover {
+  color: #e6722a;
+}
+
+/* AVATAR */
+.avatar {
+  width: 32px;
+  height: 32px;
+  background: #e6722a;
+  border-radius: 50%;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
-.material-icons {
-  font-size: 24px;
-  color: white;
-}
-
+/* BADGE */
 .badge {
   position: absolute;
   top: -5px;
-  right: -8px;
+  right: -6px;
   background: red;
-  color: white;
   font-size: 10px;
-  padding: 3px 6px;
+  padding: 2px 5px;
   border-radius: 50%;
-  font-weight: bold;
+}
+
+/* ICON */
+.material-icons {
+  font-size: 22px;
+
+  display: flex;          
+  align-items: center;    
 }
 </style>

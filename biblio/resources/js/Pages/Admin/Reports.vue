@@ -95,7 +95,7 @@ const restrictUser = () => {
             preserveScroll: true,
             onSuccess: () => {
 
-                // 🔥 auto resolve report after restriction
+                
                 router.patch(`/admin/reports/${selectedReport.value.id}/resolve`)
 
                 closeModal()
@@ -124,26 +124,26 @@ const goToComment = (report = selectedReport.value) => {
         <div class="p-6">
 
             <!-- TITLE -->
-            <h1 class="text-2xl font-bold mb-6 text-[#213555]">Reports</h1>
+            <h1 class="text-2xl font-bold mb-6 text-[#213555]">Ziņojumi</h1>
 
             <!-- STAT CARDS -->
             <div class="grid grid-cols-3 gap-4 mb-8">
                 <div class="bg-white p-4 rounded-xl shadow">
-                    <p class="text-sm text-gray-500">Pending</p>
+                    <p class="text-sm text-gray-500">Gaida</p>
                     <p class="text-2xl font-bold text-red-600">
                         {{ pendingCount }}
                     </p>
                 </div>
 
                 <div class="bg-white p-4 rounded-xl shadow">
-                    <p class="text-sm text-gray-500">Resolved</p>
+                    <p class="text-sm text-gray-500">Atrisināts</p>
                     <p class="text-2xl font-bold text-green-600">
                         {{ resolvedCount }}
                     </p>
                 </div>
 
                 <div class="bg-white p-4 rounded-xl shadow">
-                    <p class="text-sm text-gray-500">Total</p>
+                    <p class="text-sm text-gray-500">Kopā</p>
                     <p class="text-2xl font-bold text-[#213555]">
                         {{ reports.length }}
                     </p>
@@ -155,11 +155,11 @@ const goToComment = (report = selectedReport.value) => {
                 <table class="min-w-full text-sm">
                     <thead class="bg-gray-50 border-b text-left text-gray-600">
                         <tr>
-                            <th class="p-4">Book</th>
-                            <th>Comment</th>
-                            <th>Reported By</th>
-                            <th>Status</th>
-                            <th class="text-right pr-6">Actions</th>
+                            <th class="p-4">Grāmata</th>
+                            <th>Komentārs</th>
+                            <th>Ziņotājs</th>
+                            <th>Statuss</th>
+                            <th class="text-right pr-6">Darbības</th>
                         </tr>
                     </thead>
 
@@ -192,14 +192,14 @@ const goToComment = (report = selectedReport.value) => {
                                     v-if="r.status === 'pending'"
                                     class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-600"
                                 >
-                                    Pending
+                                    Gaida
                                 </span>
 
                                 <span
                                     v-else
                                     class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-600"
                                 >
-                                    Resolved
+                                    Atrisināts
                                 </span>
                             </td>
 
@@ -208,7 +208,7 @@ const goToComment = (report = selectedReport.value) => {
                                     @click="openManageModal(r)"
                                     class="text-[#213555] hover:underline font-medium"
                                 >
-                                    Manage
+                                    Pārvaldīt
                                 </button>
                             </td>
 
@@ -218,7 +218,7 @@ const goToComment = (report = selectedReport.value) => {
             </div>
 
             <div v-else class="text-gray-500">
-                No reports yet.
+                Vēl nav ziņojumu.
             </div>
 
         </div>
@@ -233,26 +233,26 @@ const goToComment = (report = selectedReport.value) => {
             <div class="bg-white w-[500px] rounded-xl shadow-2xl p-6">
 
                 <h2 class="text-xl font-bold mb-4 text-[#213555]">
-                    Manage report
+                    Pārvaldīt pārskatu
                 </h2>
 
                 <!-- CONTEXT -->
                 <div class="mb-4">
-                    <p class="text-sm text-gray-500">Book</p>
+                    <p class="text-sm text-gray-500">Grāmata</p>
                     <p class="font-semibold text-[#213555]">
                         {{ selectedReport?.comment?.book?.title }}
                     </p>
                 </div>
 
                 <div class="mb-4">
-                    <p class="text-sm text-gray-500">Full Comment</p>
+                    <p class="text-sm text-gray-500">Pilns komentārs</p>
                     <div class="bg-gray-50 p-3 rounded-lg text-sm">
                         {{ selectedReport?.comment?.comment }}
                     </div>
                 </div>
 
                 <div class="mb-6 text-sm text-gray-600">
-                    Comment by:
+                    Paziņoja:
                     <strong>{{ selectedReport?.comment?.user?.username }}</strong>
                 </div>
 
@@ -260,7 +260,7 @@ const goToComment = (report = selectedReport.value) => {
                     @click="goToComment()"
                     class="mb-6 text-blue-600 hover:underline text-sm"
                 >
-                    View in context
+                    Skatīt kontekstu
                 </button>
 
                 <!-- ACTIONS -->
@@ -271,14 +271,14 @@ const goToComment = (report = selectedReport.value) => {
                         @click="resolveReport"
                         class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
                     >
-                        Resolve report
+                        Atrisināt ziņojumu
                     </button>
 
                     <button
                         @click="deleteComment"
                         class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition"
                     >
-                        Delete comment
+                        Dzēst komentāru
                     </button>
 
                 </div>
@@ -287,7 +287,7 @@ const goToComment = (report = selectedReport.value) => {
 
                 <!-- RESTRICT -->
                 <h3 class="font-semibold mb-2 text-[#213555]">
-                    Restrict user
+                    Ierobežot lietotāju
                 </h3>
 
                 <label class="text-sm text-gray-600">Days</label>
@@ -295,18 +295,18 @@ const goToComment = (report = selectedReport.value) => {
                     v-model="restrictionDays"
                     class="w-full border rounded-lg p-2 mb-3"
                 >
-                    <option :value="1">1 day</option>
-                    <option :value="7">7 days</option>
-                    <option :value="30">30 days</option>
-                    <option :value="999">Permanent</option>
+                    <option :value="1">1 diena</option>
+                    <option :value="7">7 dienas</option>
+                    <option :value="30">30 dienas</option>
+                    <option :value="999">Pastāvīgi</option>
                 </select>
 
-                <label class="text-sm text-gray-600">Reason</label>
+                <label class="text-sm text-gray-600">Iemesls</label>
                 <textarea
                     v-model="restrictionReason"
                     class="w-full border rounded-lg p-2 mb-4"
                     rows="3"
-                    placeholder="Reason for restriction..."
+                    placeholder="Ierobežojuma iemesls..."
                 ></textarea>
 
                 <div class="flex justify-between">
@@ -315,14 +315,14 @@ const goToComment = (report = selectedReport.value) => {
                         @click="closeModal"
                         class="px-4 py-2 bg-gray-200 rounded-lg"
                     >
-                        Cancel
+                        Atcelt
                     </button>
 
                     <button
                         @click="restrictUser"
                         class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
                     >
-                        Confirm restriction
+                        Apstiprināt ierobežojumu
                     </button>
 
                 </div>

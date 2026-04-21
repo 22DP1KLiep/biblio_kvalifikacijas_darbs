@@ -1,6 +1,6 @@
 <template>
     <div v-if="$page.props.auth.user && $page.props.auth.user.role === 'admin'">
-        <button @click="goToAdmin">Go to Admin Panel</button>
+        <button @click="goToAdmin">Iet uz administrātora paneli</button>
     </div>
 </template>
 

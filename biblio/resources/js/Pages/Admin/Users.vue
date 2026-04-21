@@ -85,14 +85,14 @@ const removeRestriction = () => {
         <div class="min-h-screen bg-[#f0f4f8]">
             <div class="container mx-auto p-6">
                 <h1 class="text-2xl font-bold mb-6 text-[#213555]">
-                    Users
+                    Lietotāji
                 </h1>
 
                 <!-- SEARCH -->
                 <input
                     v-model="search"
                     type="text"
-                    placeholder="Search by email..."
+                    placeholder="Meklēt pēc e-pasta..."
                     class="mb-4 w-full max-w-sm border rounded px-3 py-2"
                 />
 
@@ -101,10 +101,10 @@ const removeRestriction = () => {
                     <table class="w-full text-sm">
                         <thead class="bg-gray-100 text-left">
                             <tr>
-                                <th class="p-3">Email</th>
-                                <th class="p-3">Role</th>
-                                <th class="p-3">Status</th>
-                                <th class="p-3 text-right">Restrict</th>
+                                <th class="p-3">E-pasts</th>
+                                <th class="p-3">Loma</th>
+                                <th class="p-3">Statuss</th>
+                                <th class="p-3 text-right">Ierobežot</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -120,13 +120,13 @@ const removeRestriction = () => {
                                         v-if="user.restricted_until"
                                         class="text-orange-600 font-medium"
                                     >
-                                        Restricted
+                                        Ierobežots
                                     </span>
                                     <span
                                         v-else
                                         class="text-green-600 font-medium"
                                     >
-                                        Active
+                                        Aktīvs
                                     </span>
                                 </td>
                                 <td class="p-3 text-right">
@@ -134,14 +134,14 @@ const removeRestriction = () => {
                                         class="text-xs text-orange-600 hover:underline"
                                         @click="openRestrictModal(user)"
                                     >
-                                        Manage
+                                        Pārvaldīt
                                     </button>
                                 </td>
                             </tr>
 
                             <tr v-if="!filteredUsers.length">
                                 <td colspan="4" class="p-6 text-center text-gray-500">
-                                    No users found.
+                                    Nav atrasts neviens lietotājs.
                                 </td>
                             </tr>
                         </tbody>
@@ -157,44 +157,44 @@ const removeRestriction = () => {
         >
             <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
                 <h2 class="text-lg font-bold mb-2">
-                    Restrict user
+                    Ierobežot lietotāju
                 </h2>
 
                 <p class="text-sm mb-2">
-                    User: <strong>{{ selectedUser?.email }}</strong>
+                    Lietotājs: <strong>{{ selectedUser?.email }}</strong>
                 </p>
 
                 <p
                     v-if="selectedUser?.restricted_until"
                     class="mb-2 text-sm text-orange-700"
                 >
-                    ⚠️ User is currently restricted
+                    Lietotājs pašlaik ir ierobežots
                 </p>
 
                 <p
                     v-if="selectedUser?.restriction_reason"
                     class="mb-4 text-sm text-gray-600"
                 >
-                    <strong>Reason:</strong> {{ selectedUser.restriction_reason }}
+                    <strong>Iemesls:</strong> {{ selectedUser.restriction_reason }}
                 </p>
 
                 <!-- FORM (TIKAI JA NAV RESTRICTED) -->
                 <div v-if="!selectedUser?.restricted_until">
                     <div class="mb-4">
-                        <label class="block text-sm mb-1">Days</label>
+                        <label class="block text-sm mb-1">Dienas</label>
                         <select
                             v-model="restrictDays"
                             class="w-full border rounded px-3 py-2"
                         >
-                            <option :value="1">1 day</option>
-                            <option :value="3">3 days</option>
-                            <option :value="7">7 days</option>
-                            <option :value="30">30 days</option>
+                            <option :value="1">1 diena</option>
+                            <option :value="3">3 dienas</option>
+                            <option :value="7">7 dienas</option>
+                            <option :value="30">30 dienas</option>
                         </select>
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm mb-1">Reason</label>
+                        <label class="block text-sm mb-1">Iemesls</label>
                         <textarea
                             v-model="restrictReason"
                             class="w-full border rounded px-3 py-2"
@@ -210,7 +210,7 @@ const removeRestriction = () => {
                         class="px-4 py-2 text-sm rounded bg-red-600 text-white hover:bg-red-700"
                         @click="removeRestriction"
                     >
-                        Remove restriction
+                        Noņemt ierobežojumu
                     </button>
 
                     <div class="flex gap-2 ml-auto">
@@ -218,7 +218,7 @@ const removeRestriction = () => {
                             class="px-3 py-2 border rounded"
                             @click="closeRestrictModal"
                         >
-                            Cancel
+                            Atcelt
                         </button>
 
                         <button
@@ -226,7 +226,7 @@ const removeRestriction = () => {
                             class="px-3 py-2 bg-orange-600 text-white rounded hover:bg-orange-700"
                             @click="confirmRestriction"
                         >
-                            Confirm restriction
+                            Apstiprināt ierobežojumu
                         </button>
                     </div>
                 </div>
