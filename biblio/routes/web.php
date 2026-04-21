@@ -254,7 +254,39 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications',
         [NotificationsController::class, 'index']
     );
+    Route::post('/notifications/{id}/read', function ($id) {
+    $notification = \App\Models\Notification::findOrFail($id);
 
+    if ($notification->user_id === auth()->id()) {
+        $notification->update(['is_read' => true]);
+    }
+
+    return response()->noContent();
+
+});
+Route::middleware('auth')->get('/api/notifications', function () {
+    return \App\Models\Notification::with('fromUser')
+        ->where('user_id', auth()->id())
+        ->latest()
+        ->get();
+});
+
+// Dzēst vienu
+Route::delete('/notifications/{id}', function ($id) {
+    $notification = \App\Models\Notification::findOrFail($id);
+
+    if ($notification->user_id === auth()->id()) {
+        $notification->delete();
+    }
+
+    return response()->noContent();
+});
+
+// Dzēst visas
+Route::delete('/notifications', function () {
+    \App\Models\Notification::where('user_id', auth()->id())->delete();
+    return response()->noContent();
+});
 });
 
 

@@ -164,13 +164,16 @@ const handleSearch = () => {
     </Link>
   </li>
   <li v-if="user" class="notification-item">
-    <Link href="/notifications">
-      🔔
-      <span v-if="notificationsCount > 0" class="badge">
-        {{ notificationsCount }}
-      </span>
-    </Link>
-  </li>
+  <Link href="/notifications" class="notification-link">
+
+    <span class="material-icons">notifications</span>
+
+    <span v-if="notificationsCount > 0" class="badge">
+      {{ notificationsCount }}
+    </span>
+
+  </Link>
+</li>
 
         <li v-if="user">
           <Link :href="`/users/${user.id}`">
@@ -421,5 +424,28 @@ nav ul li a:hover {
 .search-item span {
   font-size: 12px;
   color: #666;
+}
+
+.notification-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.material-icons {
+  font-size: 24px;
+  color: white;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background: red;
+  color: white;
+  font-size: 10px;
+  padding: 3px 6px;
+  border-radius: 50%;
+  font-weight: bold;
 }
 </style>

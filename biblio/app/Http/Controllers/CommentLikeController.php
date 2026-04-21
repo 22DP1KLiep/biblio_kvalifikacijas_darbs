@@ -23,12 +23,25 @@ class CommentLikeController extends Controller
             $existing->delete();
             $isLiked = false;
         } else {
-            $comment->likes()->create([
-                'user_id' => $user->id,
-                'comment_id' => $comment->id
-            ]);
-            $isLiked = true;
-        }
+    $comment->likes()->create([
+        'user_id' => $user->id,
+        'comment_id' => $comment->id
+    ]);
+    $isLiked = true;
+
+    // 🔔 NOTIFICATION
+    if ($comment->user_id !== $user->id) {
+        \App\Models\Notification::create([
+            'user_id' => $comment->user_id,
+            'from_user_id' => $user->id,
+            'type' => 'comment_like',
+            'data' => [
+                'comment_id' => $comment->id,
+                'book_id' => $comment->book_id
+            ]
+        ]);
+    }
+}
 
         return response()->json([
             'likes_count' => $comment->likes()->count(),

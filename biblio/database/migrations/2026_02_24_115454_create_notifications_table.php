@@ -23,7 +23,7 @@ return new class extends Migration
         $table->string('type');
         // follow | message | comment
 
-        $table->string('data')->nullable();
+        $table->json('data')->nullable();
         // Papildus info (piemēram chat_id)
 
         $table->boolean('is_read')->default(false);

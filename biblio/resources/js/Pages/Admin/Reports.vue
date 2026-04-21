@@ -64,12 +64,18 @@ const resolveReport = () => {
 const deleteComment = () => {
     if (!selectedReport.value) return
 
+    const confirmDelete = confirm("Vai tiešām dzēst šo komentāru?")
+
+    if (!confirmDelete) return
+
     router.delete(
-        `/admin/comments/${selectedReport.value.comment.id}`,
+        `/comments/${selectedReport.value.comment.id}`,
         {
             preserveScroll: true,
             onSuccess: () => {
                 closeModal()
+
+
                 router.reload({ only: ['reports'] })
             }
         }

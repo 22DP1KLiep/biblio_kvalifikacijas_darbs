@@ -49,13 +49,13 @@ class CommentController extends Controller
     {
         $comment = Comment::findOrFail($commentId);
 
-        // Ja nav īpašnieks un nav admin
         if ($comment->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
             abort(403);
         }
 
         $comment->delete();
-        return response()->noContent();
+
+        return redirect()->back();
     }
 
     public function like($id)
