@@ -1,46 +1,104 @@
 <template>
-  <!-- HERO / INTRO SECTION -->
+  <!-- HERO -->
   <section
-    class="relative bg-cover bg-center h-[80vh] shadow-xl overflow-hidden"
+    class="relative bg-cover bg-center h-[90vh] overflow-hidden"
     style="background-image: url('/img/blue_wallpaper.jpg');"
   >
-    <div
-      class="absolute inset-0 bg-black bg-opacity-60 flex flex-col justify-center items-center text-center px-4"
-    >
-      <h2
-        class="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight drop-shadow-lg"
-      >
-        Atrodi savu nākamo <br />
-        iecienīto grāmatu
+    <!-- overlay -->
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+    <div class="relative z-10 flex flex-col justify-center items-center text-center h-full px-4">
+      <h2 class="text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
+        Atrodi grāmatas, kas
+        <span class="bg-gradient-to-r from-[#3E5879] to-[#f0f4f8] bg-clip-text text-transparent">
+          Tevi aizrauj
+        </span>
       </h2>
 
-      <p class="text-lg text-gray-200 max-w-xl mb-6">
-        Lasīšana nav tikai hobijs — tā ir ceļošana laikā, idejās un sajūtās.
+      <p class="text-lg md:text-xl text-gray-200 max-w-2xl mb-8">
+        Meklē, saglabā un dalies ar savām iecienītākajām grāmatām vienuviet.
       </p>
 
       <button
         @click="goToBooks"
-        class="bg-gradient-to-r from-[#213555] to-[#3E5879] text-white font-semibold py-3 px-6 rounded-md shadow-lg hover:scale-105 transition-all duration-300"
+        class="bg-gradient-to-r from-[#213555] to-[#3E5879] text-white font-semibold py-4 px-8 rounded-xl shadow-xl hover:scale-110 hover:shadow-2xl transition-all duration-300"
       >
-        Skatīt visas grāmatas
+        Sākt meklēt grāmatas
       </button>
     </div>
   </section>
 
-  <!-- BOOK SECTION -->
-  <ShowBook />
+  <!-- FEATURES -->
+  <section class="py-24 bg-white text-center">
+    <h3 class="text-4xl md:text-5xl font-extrabold mb-16 text-[#213555]">
+      Ko Tu vari darīt šeit?
+    </h3>
+
+    <div class="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto px-6">
+
+      <div class="p-8 rounded-2xl bg-white shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+        
+        <h4 class="font-bold text-xl mb-2">Meklē grāmatas</h4>
+        <p class="text-gray-500">
+          Atrodi grāmatas pēc nosaukuma, autora vai žanra.
+        </p>
+      </div>
+
+      <div class="p-8 rounded-2xl bg-white shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+        
+        <h4 class="font-bold text-xl mb-2">Vērtē un komentē</h4>
+        <p class="text-gray-500">
+          Dalies ar savu viedokli un redzi citu atsauksmes.
+        </p>
+      </div>
+
+      <div class="p-8 rounded-2xl bg-white shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+        
+        <h4 class="font-bold text-xl mb-2">Veido savas mapes</h4>
+        <p class="text-gray-500">
+          Saglabā grāmatas “Izlasīts”, “Vēlos lasīt” u.c.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- WHY -->
+  <section class="py-24 bg-gradient-to-br from-[#213555] to-[#3E5879] text-center text-white px-6">
+    <h3 class="text-4xl md:text-5xl font-extrabold mb-8">
+      Vairāk nekā tikai grāmatu lapa
+    </h3>
+
+    <p class="max-w-2xl mx-auto text-lg opacity-90">
+      Šī ir vieta, kur Tu vari organizēt savu lasīšanas pasauli,
+      sekot līdzi progresam un atrast jaunus iedvesmas avotus.
+    </p>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-24 text-center px-6 bg-[#f0f4f8]">
+    <h3 class="text-4xl md:text-5xl font-extrabold mb-6 text-[#213555]">
+      Sāc jau šodien
+    </h3>
+
+    <p class="mb-8 text-gray-600 text-lg">
+      Izveido savu kontu un sāc veidot savu grāmatu kolekciju.
+    </p>
+
+    <button
+      @click="$inertia.visit('/auth')"
+      class="bg-[#213555] text-white px-8 py-4 rounded-xl shadow-lg hover:scale-110 hover:bg-[#3E5879] transition-all duration-300"
+    >
+      Reģistrēties
+    </button>
+  </section>
 </template>
 
 <script>
 import GuestLayout from '@/Layouts/GuestLayout.vue'
-import ShowBook from '@/Components/showBook.vue'
 
 export default {
   layout: GuestLayout,
-
-  components: {
-    ShowBook,
-  },
 
   methods: {
     goToBooks() {
