@@ -37,7 +37,7 @@ watch(searchQuery, async (q) => {
   isLoadingUsers.value = false
 })
 
-// 🔎 SUBMIT SEARCH
+
 const handleSearch = () => {
   const q = searchQuery.value.trim()
   if (!q) return
