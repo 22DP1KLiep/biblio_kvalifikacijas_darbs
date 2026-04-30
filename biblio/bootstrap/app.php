@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin' => AdminMiddleware::class,
+            'check.restricted' => \App\Http\Middleware\CheckRestricted::class,
         ]);
 
         $middleware->web(append: [

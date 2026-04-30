@@ -32,13 +32,15 @@ defineOptions({
         :href="`/users/${u.id}`"
         class="user-card"
       >
-        <div class="avatar">
-          {{ u.name.charAt(0).toUpperCase() }}
-        </div>
+        <img
+          :src="u.avatar 
+            ? `/storage/${u.avatar}` 
+            : `https://ui-avatars.com/api/?name=${u.username}`"
+          class="avatar-img"
+        />
 
         <div class="user-info">
-          <h3>{{ u.name }}</h3>
-          <p>@{{ u.username }}</p>
+          <h3>@{{ u.username }}</h3>
         </div>
       </Link>
 
@@ -120,5 +122,12 @@ defineOptions({
   margin-top: 40px;
   color: #999;
   font-size: 1rem;
+}
+
+.avatar-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 </style>

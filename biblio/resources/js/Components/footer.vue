@@ -1,76 +1,138 @@
-<script>
-
+<script setup>
+const year = new Date().getFullYear()
 </script>
 
-
 <template>
-    <footer>
-        <div class="footer-container">
-            <div class="footer-contact">
-                <h3>Contact Us</h3>
-                <p>Email: info@example.com</p>
-                <p>Phone: +123 456 7890</p>
-            </div>
-            <div class="footer-social">
-                <h3>Follow Us</h3>
-                <ul>
-                    <li><a href="#">Facebook</a></li>
-                    <li><a href="#">Twitter</a></li>
-                    <li><a href="#">Instagram</a></li>
-                </ul>
-            </div>
+  <footer class="footer">
+
+    <div class="footer-container">
+
+      <!-- LOGO / PAR -->
+      <div class="footer-section">
+        <h2 class="footer-logo">Biblio</h2>
+        <p class="footer-text">
+          Atrodi, saglabā un dalies ar savām iecienītākajām grāmatām.
+        </p>
+      </div>
+
+      <!-- NAV -->
+      <div class="footer-section">
+        <h3>Navigācija</h3>
+        <ul>
+          <li><a href="/">Sākums</a></li>
+          <li><a href="/gramatas">Grāmatas</a></li>
+        </ul>
+      </div>
+
+      <!-- KONTAKTI -->
+      <div class="footer-section">
+        <h3>Kontakti</h3>
+        <p>Email: info@biblio.lv</p>
+        <p>Tel: +371 00000000</p>
+      </div>
+
+      <!-- SOCIAL -->
+      <div class="footer-section">
+        <h3>Seko mums</h3>
+        <div class="socials">
+          <a href="#">FB</a>
+          <a href="#">IG</a>
+          <a href="#">TW</a>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 Biblio. All rights reserved.</p>
-        </div>
-    </footer>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM -->
+    <div class="footer-bottom">
+      <p>© {{ year }} Biblio. Visas tiesības aizsargātas.</p>
+    </div>
+
+  </footer>
 </template>
 
-
-<style>
-footer {
-    background-color: #213555; /* Background color for the footer */
-    color: rgb(255, 235, 235); /* Text color for the footer */
-    padding: 20px 0; /* Padding for the footer */
+<style scoped>
+.footer {
+  background: linear-gradient(135deg, #213555, #3E5879);
+  color: #f5efe7;
+  padding: 50px 6% 20px;
 }
 
+/* GRID */
 .footer-container {
-    display: flex; /* Use flexbox for layout */
-    justify-content: space-around; /* Space out the sections */
-    max-width: 1200px; /* Max width for the footer */
-    margin: 0 auto; /* Center the footer */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.footer-links, .footer-contact, .footer-social {
-    flex: 1; /* Allow sections to grow equally */
-    padding: 0 20px; /* Padding for sections */
+/* SECTION */
+.footer-section h3 {
+  margin-bottom: 12px;
+  font-size: 15px;
+  color: #ffffff;
 }
 
-.footer-links h3, .footer-contact h3, .footer-social h3 {
-    margin-bottom: 10px; /* Space below headings */
+.footer-text {
+  font-size: 13px;
+  color: #d1d5db;
+  line-height: 1.6;
 }
 
-.footer-links ul, .footer-social ul {
-    list-style-type: none; /* Remove bullet points */
-    padding: 0; /* Remove default padding */
+/* LOGO */
+.footer-logo {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
-.footer-links li, .footer-social li {
-    margin: 5px 0; /* Space between links */
+/* LINKS */
+.footer-section ul {
+  list-style: none;
+  padding: 0;
 }
 
-.footer-links a, .footer-social a {
-    color: rgb(255, 235, 235); /* Link color */
-    text-decoration: none; /* Remove underline */
+.footer-section li {
+  margin-bottom: 6px;
 }
 
-.footer-links a:hover, .footer-social a:hover {
-    text-decoration: underline; /* Underline on hover */
+.footer-section a {
+  text-decoration: none;
+  color: #d1d5db;
+  font-size: 13px;
+  transition: 0.2s;
 }
 
+.footer-section a:hover {
+  color: #e6722a;
+}
+
+/* SOCIAL */
+.socials {
+  display: flex;
+  gap: 10px;
+}
+
+.socials a {
+  background: rgba(255,255,255,0.1);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.socials a:hover {
+  background: #e6722a;
+  color: white;
+}
+
+/* BOTTOM */
 .footer-bottom {
-    text-align: center; /* Center the copyright text */
-    margin-top: 20px; /* Space above the copyright text */
+  text-align: center;
+  margin-top: 40px;
+  font-size: 12px;
+  color: #aaa;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 15px;
 }
-
 </style>

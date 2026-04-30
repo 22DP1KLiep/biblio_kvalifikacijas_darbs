@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Models\Notification;
 
 class UserController extends Controller
 {
@@ -56,27 +57,49 @@ class UserController extends Controller
     }
 
     public function restrict(Request $request, User $user)
-    {
-        $request->validate([
-            'days' => 'required|integer|min:1',
-            'reason' => 'nullable|string',
-        ]);
+{
+    $request->validate([
+        'days' => 'required|integer|min:1',
+        'reason' => 'nullable|string',
+    ]);
 
-        $user->update([
-            'restricted_until' => now()->addDays($request->days),
-            'restriction_reason' => $request->reason,
-        ]);
+    $until = now()->addDays($request->days);
 
-        return back();
-    }
+    $user->update([
+        'restricted_until' => $until,
+        'restriction_reason' => $request->reason,
+    ]);
+
+    // 🔥 ŠIS IR JAUNAIS
+    Notification::create([
+        'user_id' => $user->id,
+        'from_user_id' => auth()->id(),
+        'type' => 'restriction',
+        'data' => json_encode([
+            'reason' => $request->reason,
+            'until' => $until,
+        ]),
+        'is_read' => false,
+    ]);
+
+    return back();
+}
 
     public function removeRestriction(User $user)
-    {
-        $user->update([
-            'restricted_until' => null,
-            'restriction_reason' => null,
-        ]);
+{
+    $user->update([
+        'restricted_until' => null,
+        'restriction_reason' => null,
+    ]);
 
-        return back();
-    }
+    Notification::create([
+        'user_id' => $user->id,
+        'from_user_id' => auth()->id(),
+        'type' => 'restriction_removed',
+        'data' => null,
+        'is_read' => false,
+    ]);
+
+    return back();
+}
 }

@@ -21,6 +21,7 @@ onUnmounted(() => {
 const page = usePage()
 
 const user = computed(() => page.props?.auth?.user ?? null)
+const isAdmin = computed(() => user.value?.role === 'admin')
 const notificationsCount = computed(() => page.props?.notificationsCount ?? 0)
 
 const searchQuery = ref('')
@@ -46,6 +47,10 @@ const closeDropdown = () => {
 
 
 watch(searchQuery, async (q) => {
+
+  // 🔒 JA RESTRICTED UN USERS TAB → STOP
+  if (user.value?.restricted && activeTab.value === 'users') return
+
   if (activeTab.value !== 'users') return
 
   if (!q.trim()) {
@@ -72,6 +77,12 @@ const handleSearch = () => {
   const q = searchQuery.value.trim()
   if (!q) return
 
+  
+  if (user.value?.restricted && activeTab.value === 'users') {
+    alert('Lietotāju meklēšana nav pieejama')
+    return
+  }
+
   if (activeTab.value === 'books') {
     router.get('/gramatas', { q })
   } else {
@@ -90,7 +101,10 @@ const handleSearch = () => {
       <div class="nav-links">
         <Link href="/">Sākums</Link>
         <Link href="/gramatas">Grāmatas</Link>
-        <Link href="/kabinets">Kabinets</Link>
+        <Link v-if="user" href="/kabinets">Kabinets</Link>
+        <Link v-if="isAdmin" href="/admin" class="admin-link">
+          Admin Panelis
+        </Link>
       </div>
     </div>
 
@@ -111,7 +125,8 @@ const handleSearch = () => {
 
           <button
             :class="{ active: activeTab === 'users' }"
-            @click="activeTab = 'users'"
+            @click="!user?.restricted && (activeTab = 'users')"
+            :disabled="user?.restricted"
           >
             Lietotāji
           </button>
@@ -123,6 +138,7 @@ const handleSearch = () => {
 
           <input
             v-model="searchQuery"
+            :disabled="user?.restricted && activeTab === 'users'"
             @keyup.enter="handleSearch(); closeDropdown()"
             placeholder="Meklēt..."
           />
@@ -182,7 +198,12 @@ const handleSearch = () => {
 
       <!-- PROFILE -->
       <Link v-if="user" :href="`/users/${user.id}`" class="avatar">
-        {{ user.username.charAt(0).toUpperCase() }}
+        <img
+          :src="user.avatar 
+            ? `/storage/${user.avatar}` 
+            : `https://ui-avatars.com/api/?name=${user.username}`"
+          class="avatar-img"
+        />
       </Link>
       <!-- LOGOUT -->
       <Link
@@ -242,7 +263,8 @@ const handleSearch = () => {
   <!-- INPUT -->
   <input
     v-model="searchQuery"
-    @keyup.enter="handleSearch; closeMenu()"
+    :disabled="user?.restricted && activeTab === 'users'"
+    @keyup.enter="handleSearch(); closeMenu()"
     placeholder="Meklēt..."
   />
 
@@ -251,6 +273,9 @@ const handleSearch = () => {
   <Link href="/" @click="closeMenu">Sākums</Link>
   <Link href="/gramatas" @click="closeMenu">Grāmatas</Link>
   <Link href="/kabinets" @click="closeMenu">Kabinets</Link>
+  <Link v-if="isAdmin" href="/admin" @click="closeMenu">
+    Admin Panelis
+  </Link>
 
   <Link v-if="user" href="/chats" @click="closeMenu">Čati</Link>
   <Link v-if="user" href="/notifications" @click="closeMenu">Notifikācijas</Link>
@@ -397,11 +422,18 @@ const handleSearch = () => {
 .avatar {
   width: 32px;
   height: 32px;
-  background: #e6722a;
   border-radius: 50%;
+  overflow: hidden; /* 🔥 svarīgi */
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #e6722a;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* BADGE */

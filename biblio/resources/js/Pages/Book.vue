@@ -66,7 +66,8 @@
                         <!-- POGA -->
                         <button
                             @click.stop="toggleFolderDropdown"
-                            class="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-xl bg-white hover:bg-gray-50 shadow-sm text-[#213555]"
+                            :disabled="user?.restricted"
+                            class="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-xl bg-white hover:bg-gray-50 shadow-sm text-[#213555] disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                         <span class="material-icons-outlined">folder</span>
                             Pievienot mapē
@@ -74,10 +75,11 @@
 
                         <!-- DROPDOWN -->
                         <div
-                            v-if="showFolderDropdown"
+                            v-if="showFolderDropdown && !user?.restricted"
                             ref="dropdown"
                             class="absolute mt-2 w-56 bg-white border rounded-xl shadow-lg z-20"
                         >
+                        
                             <div
                                 v-for="folder in folders"
                                 :key="folder.id"
@@ -160,9 +162,13 @@
                                         v-model="comment"
                                         rows="3"
                                         placeholder="Uzraksti savu atsauksmi..."
-                                        class="w-full resize-none border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#213555]"
+                                        :disabled="user?.restricted"
+                                        class="w-full resize-none border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#213555] disabled:bg-gray-200 disabled:cursor-not-allowed"
                                         @keydown.enter.prevent="handleEnter"
-                                    ></textarea>
+                                    />
+                                    <p v-if="user?.restricted" class="text-red-500 text-sm mt-2">
+                                        Tu nevari rakstīt komentārus, jo Tavs konts ir ierobežots
+                                    </p>
 
                                     <!-- POGU RINDA -->
                                     <div class="flex justify-between items-center mt-2">
@@ -178,7 +184,8 @@
                                         <!-- Labā puse -->
                                         <button
                                             @click="submitFeedback"
-                                            class="bg-[#213555] hover:bg-[#3e5879] text-white px-4 py-1.5 rounded-lg text-xs"
+                                            :disabled="user?.restricted"
+                                            class="bg-[#213555] hover:bg-[#3e5879] text-white px-4 py-1.5 rounded-lg text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             Sūtīt
                                         </button>
@@ -474,6 +481,8 @@
 <script>
 import axios from 'axios';
 import Navbar from "@/Components/Navbar.vue";
+import { usePage } from '@inertiajs/vue3'
+
 
 
 export default {
@@ -730,6 +739,10 @@ toggleFolderDropdown() {
 },
 
 selectFolder(folderId) {
+    if (this.user?.restricted) {
+    alert('Tavs konts ir ierobežots. Tu nevari izmantot mapes.')
+    return
+}
     this.showFolderDropdown = false;
 
     if (this.savedFolderIds.includes(folderId)) {
@@ -838,6 +851,9 @@ handleScroll() {
 
     // 👇 PIEVIENO ŠEIT
     computed: {
+        user() {
+        return this.$page.props.auth?.user
+    },
         imageUrl() {
             const img = this.book?.image;
             if (!img) return 'https://via.placeholder.com/300';

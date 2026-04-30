@@ -76,29 +76,22 @@
   </section>
 
   <!-- CTA -->
-  <section class="py-24 text-center px-6 bg-[#f0f4f8]">
-    <h3 class="text-4xl md:text-5xl font-extrabold mb-6 text-[#213555]">
-      Sāc jau šodien
-    </h3>
-
-    <p class="mb-8 text-gray-600 text-lg">
-      Izveido savu kontu un sāc veidot savu grāmatu kolekciju.
-    </p>
-
-    <button
-      @click="$inertia.visit('/auth')"
-      class="bg-[#213555] text-white px-8 py-4 rounded-xl shadow-lg hover:scale-110 hover:bg-[#3E5879] transition-all duration-300"
-    >
-      Reģistrēties
-    </button>
-  </section>
+  
 </template>
 
 <script>
+import { usePage } from '@inertiajs/vue3'
 import GuestLayout from '@/Layouts/GuestLayout.vue'
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 
 export default {
-  layout: GuestLayout,
+  layout: (h, page) => {
+    const user = page.props.auth?.user
+
+    return user
+      ? h(AuthenticatedLayout, page)
+      : h(GuestLayout, page)
+  },
 
   methods: {
     goToBooks() {

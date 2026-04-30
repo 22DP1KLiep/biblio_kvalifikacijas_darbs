@@ -64,7 +64,7 @@ defineProps({
       {{ user.username }}
     </Link>
   </div>
-
+  
 </main>
 
     </div>

@@ -1,5 +1,5 @@
 <script setup>
-import GuestLayout from '@/Layouts/GuestLayout.vue'
+import Navbar from '@/Components/Navbar.vue'
 import { Link, useForm, router } from '@inertiajs/vue3'
 import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 
@@ -54,9 +54,12 @@ const sendMessage = () => {
 </script>
 
 <template>
-  <GuestLayout>
-    <div class="flex h-[calc(100vh-55px)] bg-gray-100 relative">
+  <div class="h-screen flex flex-col">
 
+    <!-- NAVBAR -->
+    <Navbar />
+
+    <div class="flex flex-1 bg-gray-100 relative overflow-hidden">
       <!-- BACKDROP (mobile only) -->
       <div
         v-if="showSidebar"
@@ -181,6 +184,6 @@ const sendMessage = () => {
         </form>
 
       </div>
+      </div>
     </div>
-  </GuestLayout>
 </template>

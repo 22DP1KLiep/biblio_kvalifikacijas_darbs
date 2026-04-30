@@ -19,19 +19,27 @@ class FolderController extends Controller
         return response()->json($folders);
     }
 
-
     public function store(Request $request)
     {
+        $user = Auth::user();
+
+        // 🔒 RESTRICTED BLOCK
+        if ($user->isRestricted()) {
+            return response()->json([
+                'message' => 'Tu nevari izveidot mapes, jo Tavs konts ir ierobežots'
+            ], 403);
+        }
+
         $request->validate([
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                'unique:folders,name,NULL,id,user_id,' . auth()->id()
+                'unique:folders,name,NULL,id,user_id,' . $user->id
             ]
         ]);
 
-        $folder = Auth::user()->folders()->create([
+        $folder = $user->folders()->create([
             'name' => $request->name,
             'is_public' => $request->is_public ?? false
         ]);
@@ -55,11 +63,20 @@ class FolderController extends Controller
 
     public function addBook(Request $request, Folder $folder)
     {
+        $user = Auth::user();
+
+        // 🔒 RESTRICTED BLOCK
+        if ($user->isRestricted()) {
+            return response()->json([
+                'message' => 'Tu nevari pievienot grāmatas mapēm, jo esi ierobežots'
+            ], 403);
+        }
+
         $request->validate([
             'book_id' => 'required|exists:books,id'
         ]);
 
-        if ($folder->user_id !== Auth::id()) {
+        if ($folder->user_id !== $user->id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -70,13 +87,21 @@ class FolderController extends Controller
 
     public function removeBook(Folder $folder, Book $book)
     {
-        if ($folder->user_id !== Auth::id()) {
+        $user = Auth::user();
+
+        // 🔒 RESTRICTED BLOCK
+        if ($user->isRestricted()) {
+            return response()->json([
+                'message' => 'Tu nevari noņemt grāmatas no mapēm'
+            ], 403);
+        }
+
+        if ($folder->user_id !== $user->id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $folder->books()->detach($book->id);
 
-        // Ielādē atlikušo grāmatu sarakstu ar žanriem
         $folder->load(['books.genres']);
 
         return response()->json([
@@ -87,7 +112,16 @@ class FolderController extends Controller
 
     public function destroy(Folder $folder)
     {
-        if ($folder->user_id !== Auth::id()) {
+        $user = Auth::user();
+
+        // 🔒 RESTRICTED BLOCK
+        if ($user->isRestricted()) {
+            return response()->json([
+                'message' => 'Tu nevari dzēst mapes'
+            ], 403);
+        }
+
+        if ($folder->user_id !== $user->id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -99,7 +133,16 @@ class FolderController extends Controller
 
     public function toggleVisibility(Folder $folder)
     {
-        if ($folder->user_id !== auth()->id()) {
+        $user = Auth::user();
+
+        // 🔒 RESTRICTED BLOCK
+        if ($user->isRestricted()) {
+            return response()->json([
+                'message' => 'Tu nevari mainīt mapes redzamību'
+            ], 403);
+        }
+
+        if ($folder->user_id !== $user->id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -124,6 +167,4 @@ class FolderController extends Controller
             'books' => $folder->books,
         ]);
     }
-
-
 }

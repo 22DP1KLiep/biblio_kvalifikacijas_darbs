@@ -39,13 +39,17 @@ class HandleInertiaRequests extends Middleware
                     'username' => $request->user()->username,
                     'email' => $request->user()->email,
                     'role' => $request->user()->role,
+                    'avatar' => $request->user()->avatar,
                     'followers_count' => $request->user()->followers()->count(),
                     'following_count' => $request->user()->following()->count(),
+                    'restricted' => $request->user()->isRestricted(),
+                    'restricted_until' => $request->user()->restrictionEndsAt(),
+                    'restriction_reason' => $request->user()->restriction_reason,
                 ]
                 : null,
         ],
 
-        // 🔔 Unread count
+        // Unread count
         'notificationsCount' => function () use ($request) {
             if (!$request->user()) return 0;
 
@@ -54,7 +58,7 @@ class HandleInertiaRequests extends Middleware
                 ->count();
         },
 
-        // 🔔 Dropdown pēdējās 5 notifikācijas
+        //  Dropdown pēdējās 5 notifikācijas
         'latestNotifications' => function () use ($request) {
             if (!$request->user()) return [];
 

@@ -67,11 +67,10 @@ class User extends Authenticatable
      * Pārbauda, vai lietotājs ir ierobežots (read-only)
      */
     public function isRestricted(): bool
-    {
-        return $this->status === 'restricted'
-            && $this->restricted_until
-            && $this->restricted_until->isFuture();
-    }
+{
+    return $this->restricted_until
+        && $this->restricted_until->isFuture();
+}
 
     public function isBanned(): bool
     {

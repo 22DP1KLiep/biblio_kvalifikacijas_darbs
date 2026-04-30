@@ -88,7 +88,7 @@ Route::post('/logout', function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'admin'])
+Route::middleware(['auth', 'admin', 'check.restricted'])
     ->prefix('admin')
     ->group(function () {
 
@@ -135,8 +135,7 @@ Route::middleware(['auth', 'admin'])
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')->group(function () {
-
+Route::middleware(['auth', 'check.restricted'])->group(function () {
     /*
     |--------------------------------------------------------------------------
     | USER PROFILE

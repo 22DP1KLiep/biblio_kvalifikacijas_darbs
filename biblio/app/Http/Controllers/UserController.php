@@ -42,6 +42,13 @@ class UserController extends Controller
 }
 public function search(Request $request)
 {
+
+    if (auth()->check() && auth()->user()->isRestricted()) {
+        return response()->json([
+            'message' => 'Meklēšana nav pieejama, jo Tavs konts ir ierobežots'
+        ], 403);
+    }
+
     $q = $request->query('q');
 
     if (!$q) {
@@ -51,7 +58,7 @@ public function search(Request $request)
     $users = User::where('username', 'like', "%{$q}%")
         ->orWhere('name', 'like', "%{$q}%")
         ->limit(8)
-        ->get(['id', 'name', 'username']);
+        ->get(['id', 'name', 'username', 'avatar']);
 
     return response()->json($users);
 }
