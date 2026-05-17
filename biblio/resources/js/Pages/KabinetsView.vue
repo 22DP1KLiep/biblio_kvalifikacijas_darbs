@@ -464,13 +464,6 @@
             Atcelt
           </button>
 
-          <button
-            @click="saveProfile"
-            class="px-4 py-2 bg-[#213555] text-white rounded-lg"
-          >
-            Saglabāt
-          </button>
-
           <!-- DELETE -->
           <button
             @click="deleteFolderConfirmed"

@@ -14,7 +14,8 @@ class ReportController extends Controller
     {
         $reports = Report::with([
             'comment.user',
-            'comment.book' // 🔥 pievienots book
+            'comment.book',
+            'user' 
         ])
         ->latest()
         ->get();

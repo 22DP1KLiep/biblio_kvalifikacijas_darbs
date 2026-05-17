@@ -141,16 +141,16 @@ Route::middleware(['auth', 'check.restricted'])->group(function () {
     | USER PROFILE
     |--------------------------------------------------------------------------
     */
-
+Route::get('/api/users/search', [UserController::class, 'search']);
     Route::get('/users/{user}', [UserController::class, 'show'])
         ->name('users.show');
 
     Route::post('/users/{user}/follow', [FollowController::class, 'toggle'])
         ->name('users.follow');
+    
 
     Route::get('/users', [UserController::class, 'index']);
 
-    Route::get('/api/users/search', [UserController::class, 'search']);
 
 
     /*

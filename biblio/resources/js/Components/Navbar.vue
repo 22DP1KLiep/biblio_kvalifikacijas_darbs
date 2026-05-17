@@ -1,121 +1,189 @@
 <script setup>
+
 import { ref, computed, watch } from 'vue'
 import { Link, usePage, router } from '@inertiajs/vue3'
 import axios from 'axios'
 import { onMounted, onUnmounted } from 'vue'
 
+// aizver dropdown ja uzspiež ārpus search zonas
 const handleClickOutside = (e) => {
   if (!e.target.closest('.search-wrapper')) {
     closeDropdown()
   }
 }
 
+// pie mount pievieno click listener
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 })
 
+// pie unload noņem listener
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
+// inertia page props
 const page = usePage()
 
+// pašreizējais lietotājs
 const user = computed(() => page.props?.auth?.user ?? null)
+
+// pārbauda vai lietotājs ir admin
 const isAdmin = computed(() => user.value?.role === 'admin')
+
+// notifikāciju skaits
 const notificationsCount = computed(() => page.props?.notificationsCount ?? 0)
 
+// search input vērtība
 const searchQuery = ref('')
+
+// aktīvais tabs
 const activeTab = ref('books')
 
+// lietotāju rezultāti dropdown
 const userResults = ref([])
+
+// loading stāvoklis
 const isLoadingUsers = ref(false)
 
+// mobile menu stāvoklis
 const isMenuOpen = ref(false)
 
+// atver vai aizver mobile menu
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
 }
 
+// aizver mobile menu
 const closeMenu = () => {
   isMenuOpen.value = false
 }
 
+// aizver search dropdown
 const closeDropdown = () => {
   searchQuery.value = ''
   userResults.value = []
 }
 
-
+// klausās search input izmaiņas
 watch(searchQuery, async (q) => {
 
-  // 🔒 JA RESTRICTED UN USERS TAB → STOP
-  if (user.value?.restricted && activeTab.value === 'users') return
+  // ja nav users tabs
+  if (activeTab.value !== 'users') {
+    userResults.value = []
+    return
+  }
 
-  if (activeTab.value !== 'users') return
-
+  // ja input tukšs
   if (!q.trim()) {
     userResults.value = []
     return
   }
 
+  // loading sākums
   isLoadingUsers.value = true
 
   try {
+
+    // request uz backend
     const res = await axios.get('/api/users/search', {
       params: { q }
     })
+
+    // saglabā rezultātus
     userResults.value = res.data
-  } catch {
+
+  } catch (err) {
+
+    // debug kļūda
+    console.log(err)
+
     userResults.value = []
   }
 
+  // loading beigas
   isLoadingUsers.value = false
 })
 
-// SUBMIT SEARCH
+// search submit funkcija
 const handleSearch = () => {
+
+  // noņem liekās atstarpes
   const q = searchQuery.value.trim()
+
+  // ja tukšs input
   if (!q) return
 
-  
+  // restricted user nevar meklēt lietotājus
   if (user.value?.restricted && activeTab.value === 'users') {
     alert('Lietotāju meklēšana nav pieejama')
     return
   }
 
+  // grāmatu meklēšana
   if (activeTab.value === 'books') {
+
     router.get('/gramatas', { q })
+
   } else {
+
+    // lietotāju meklēšana
     router.get('/users', { q })
   }
 }
+
 </script>
 
 <template>
+
+  <!-- navbar -->
   <nav class="navbar">
 
-    <!-- LEFT -->
+    <!-- kreisā puse -->
     <div class="nav-left">
+
+      <!-- logo -->
       <h1 class="logo">Biblio</h1>
 
+      <!-- desktop navigācija -->
       <div class="nav-links">
-        <Link href="/">Sākums</Link>
-        <Link href="/gramatas">Grāmatas</Link>
-        <Link v-if="user" href="/kabinets">Kabinets</Link>
-        <Link v-if="isAdmin" href="/admin" class="admin-link">
+
+        <Link href="/">
+          Sākums
+        </Link>
+
+        <Link href="/gramatas">
+          Grāmatas
+        </Link>
+
+        <!-- redz tikai autorizēti lietotāji -->
+        <Link v-if="user" href="/kabinets">
+          Kabinets
+        </Link>
+
+        <!-- admin panelis -->
+        <Link
+          v-if="isAdmin"
+          href="/admin"
+          class="admin-link"
+        >
           Admin Panelis
         </Link>
+
       </div>
+
     </div>
 
-    <!-- RIGHT SIDE -->
+    <!-- labā puse -->
     <div class="nav-right">
 
-      <!-- SEARCH -->
+      <!-- search -->
       <div class="search-wrapper">
 
-        <!-- TABS -->
+        <!-- search tabs -->
         <div class="search-tabs">
+
+          <!-- grāmatu tabs -->
           <button
             :class="{ active: activeTab === 'books' }"
             @click="activeTab = 'books'"
@@ -123,6 +191,7 @@ const handleSearch = () => {
             Grāmatas
           </button>
 
+          <!-- lietotāju tabs -->
           <button
             :class="{ active: activeTab === 'users' }"
             @click="!user?.restricted && (activeTab = 'users')"
@@ -130,82 +199,134 @@ const handleSearch = () => {
           >
             Lietotāji
           </button>
+
         </div>
 
-        <!-- INPUT -->
+        <!-- search input -->
         <div class="search-box">
-          <span class="material-icons">search</span>
 
+          <!-- search ikona -->
+          <span class="material-icons">
+            search
+          </span>
+
+          <!-- search input -->
           <input
             v-model="searchQuery"
             :disabled="user?.restricted && activeTab === 'users'"
             @keyup.enter="handleSearch(); closeDropdown()"
             placeholder="Meklēt..."
           />
+
         </div>
 
-        <!-- DROPDOWN USERS -->
+        <!-- user dropdown -->
         <div
-  v-if="activeTab === 'users' && (userResults.length || isLoadingUsers)"
-  class="search-dropdown"
->
-  <!-- LOADING -->
-  <div v-if="isLoadingUsers" class="search-item">
-    Meklē...
-  </div>
+          v-if="activeTab === 'users' && searchQuery.trim()"
+          class="search-dropdown"
+        >
 
-  <!-- USERS -->
-  <div
-    v-for="u in userResults"
-    :key="u.id"
-    class="search-item user-row"
-    @click="router.get(`/users/${u.id}`); closeDropdown()"
-  >
-    <!-- AVATAR -->
-    <img
-      :src="u.avatar ? `/storage/${u.avatar}` : `https://ui-avatars.com/api/?name=${u.username}`"
-      class="user-avatar"
-    />
+          <!-- lādejas -->
+          <div
+            v-if="isLoadingUsers"
+            class="search-item"
+          >
+            Meklē...
+          </div>
 
-    <!-- INFO -->
-    <div class="user-info">
-      <span class="username">{{ u.username }}</span>
-      <span class="email">{{ u.email }}</span>
-    </div>
-  </div>
+          <!-- lietotāju rezultāti -->
+          <div
+            v-for="u in userResults"
+            :key="u.id"
+            class="search-item user-row"
+            @mousedown.prevent="router.get(`/users/${u.id}`); closeDropdown()"
+          >
 
-  <!-- EMPTY -->
-  <div v-if="!isLoadingUsers && !userResults.length" class="search-item">
-    Nav rezultātu
-  </div>
-</div>
+            <!-- avatar -->
+            <img
+              :src="`https://ui-avatars.com/api/?name=${u.username}`"
+              class="user-avatar"
+            />
+
+            <!-- lietotāja info -->
+            <div class="user-info">
+
+              <!-- username -->
+              <span class="username">
+                {{ u.username }}
+              </span>
+
+              <!-- email -->
+              <span class="email">
+                {{ u.email }}
+              </span>
+
+            </div>
+
+          </div>
+
+          <!-- ja nav rezultātu -->
+          <div
+            v-if="!isLoadingUsers && !userResults.length"
+            class="search-item"
+          >
+            Nav rezultātu
+          </div>
+
+        </div>
 
       </div>
 
-      <!-- CHAT -->
-      <Link v-if="user" href="/chats" class="icon-btn">
-        <span class="material-icons">chat</span>
-      </Link>
-
-      <!-- NOTIFICATIONS -->
-      <Link v-if="user" href="/notifications" class="icon-btn">
-        <span class="material-icons">notifications</span>
-
-        <span v-if="notificationsCount > 0" class="badge">
-          {{ notificationsCount }}
+      <!-- čati -->
+      <Link
+        v-if="user"
+        href="/chats"
+        class="icon-btn"
+      >
+        <span class="material-icons">
+          chat
         </span>
       </Link>
 
-      <!-- PROFILE -->
-      <Link v-if="user" :href="`/users/${user.id}`" class="avatar">
+      <!-- notifikācijas -->
+      <Link
+        v-if="user"
+        href="/notifications"
+        class="icon-btn"
+      >
+
+        <span class="material-icons">
+          notifications
+        </span>
+
+        <!-- notifikāciju badge -->
+        <span
+          v-if="notificationsCount > 0"
+          class="badge"
+        >
+          {{ notificationsCount }}
+        </span>
+
+      </Link>
+
+      <!-- profils -->
+      <Link
+        v-if="user"
+        :href="`/users/${user.id}`"
+        class="avatar"
+      >
+
+        <!-- lietotāja avatars -->
         <img
-          :src="user.avatar 
-            ? `/storage/${user.avatar}` 
+          :src="user.avatar
+            ? `/storage/${user.avatar}`
             : `https://ui-avatars.com/api/?name=${user.username}`"
           class="avatar-img"
         />
+
       </Link>
-      <!-- LOGOUT -->
+
+      <!-- logout -->
       <Link
         v-if="user"
         href="/logout"
@@ -213,86 +334,161 @@ const handleSearch = () => {
         as="button"
         class="icon-btn"
       >
-        <span class="material-icons">logout</span>
+        <span class="material-icons">
+          logout
+        </span>
       </Link>
 
-      <!-- LOGIN (ja nav lietotājs) -->
-      <Link v-else href="/auth" class="icon-btn">
-        <span class="material-icons">login</span>
+      <!-- login -->
+      <Link
+        v-else
+        href="/auth"
+        class="icon-btn"
+      >
+        <span class="material-icons">
+          login
+        </span>
       </Link>
 
     </div>
 
-    <!-- HAMBURGER -->
-    <div class="hamburger" @click="toggleMenu">
+    <!-- hamburger -->
+    <div
+      class="hamburger"
+      @click="toggleMenu"
+    >
+
       <span></span>
       <span></span>
       <span></span>
+
     </div>
 
   </nav>
-  <!-- MOBILE MENU -->
-<div class="mobile-menu" :class="{ open: isMenuOpen }">
 
-  <!-- CLOSE -->
-  <button class="close-btn" @click="closeMenu">
-    <span class="material-icons">close</span>
-  </button>
+  <!-- mobile menu -->
+  <div
+    class="mobile-menu"
+    :class="{ open: isMenuOpen }"
+  >
 
-  <!-- SEARCH -->
-  <!-- MOBILE SEARCH -->
-<div class="mobile-search">
-
-  <!-- TABS -->
-  <div class="mobile-tabs">
+    <!-- aizvērt poga -->
     <button
-      :class="{ active: activeTab === 'books' }"
-      @click="activeTab = 'books'"
+      class="close-btn"
+      @click="closeMenu"
     >
+      <span class="material-icons">
+        close
+      </span>
+    </button>
+
+    <!-- mobile search -->
+    <div class="mobile-search">
+
+      <!-- mobile tabs -->
+      <div class="mobile-tabs">
+
+        <button
+          :class="{ active: activeTab === 'books' }"
+          @click="activeTab = 'books'"
+        >
+          Grāmatas
+        </button>
+
+        <button
+          :class="{ active: activeTab === 'users' }"
+          @click="activeTab = 'users'"
+        >
+          Lietotāji
+        </button>
+
+      </div>
+
+      <!-- mobilas versijas ievadisna -->
+      <input
+        v-model="searchQuery"
+        :disabled="user?.restricted && activeTab === 'users'"
+        @keyup.enter="handleSearch(); closeMenu()"
+        placeholder="Meklēt..."
+      />
+
+    </div>
+
+    <!-- mobilas versijas linki -->
+    <Link href="/" @click="closeMenu">
+      Sākums
+    </Link>
+
+    <Link href="/gramatas" @click="closeMenu">
       Grāmatas
-    </button>
+    </Link>
 
-    <button
-      :class="{ active: activeTab === 'users' }"
-      @click="activeTab = 'users'"
+    <Link
+      v-if="user"
+      href="/kabinets"
+      @click="closeMenu"
     >
-      Lietotāji
-    </button>
+      Kabinets
+    </Link>
+
+    <!-- administrators -->
+    <Link
+      v-if="isAdmin"
+      href="/admin"
+      @click="closeMenu"
+    >
+      Admin Panelis
+    </Link>
+
+    <!-- čati -->
+    <Link
+      v-if="user"
+      href="/chats"
+      @click="closeMenu"
+    >
+      Čati
+    </Link>
+
+    <!-- Paziņijumi -->
+    <Link
+      v-if="user"
+      href="/notifications"
+      @click="closeMenu"
+    >
+      Notifikācijas
+    </Link>
+
+    <!-- profils -->
+    <Link
+      v-if="user"
+      :href="`/users/${user.id}`"
+      @click="closeMenu"
+    >
+      Mans profils
+    </Link>
+
+    <!-- iziešana -->
+    <Link
+      v-if="user"
+      href="/logout"
+      method="post"
+      as="button"
+      @click="closeMenu"
+    >
+      Iziet
+    </Link>
+
+    <!-- ienākt -->
+    <Link
+      v-else
+      href="/auth"
+      @click="closeMenu"
+    >
+      Ienākt
+    </Link>
+
   </div>
 
-  <!-- INPUT -->
-  <input
-    v-model="searchQuery"
-    :disabled="user?.restricted && activeTab === 'users'"
-    @keyup.enter="handleSearch(); closeMenu()"
-    placeholder="Meklēt..."
-  />
-
-</div>
-
-  <Link href="/" @click="closeMenu">Sākums</Link>
-  <Link href="/gramatas" @click="closeMenu">Grāmatas</Link>
-  <Link href="/kabinets" @click="closeMenu">Kabinets</Link>
-  <Link v-if="isAdmin" href="/admin" @click="closeMenu">
-    Admin Panelis
-  </Link>
-
-  <Link v-if="user" href="/chats" @click="closeMenu">Čati</Link>
-  <Link v-if="user" href="/notifications" @click="closeMenu">Notifikācijas</Link>
-
-  <Link v-if="user" :href="`/users/${user.id}`" @click="closeMenu">
-    Mans profils
-  </Link>
-
-  <Link v-if="user" href="/logout" method="post" as="button" @click="closeMenu">
-    Iziet
-  </Link>
-
-  <Link v-else href="/auth" @click="closeMenu">
-    Ienākt
-  </Link>
-
-</div>
 </template>
 
 <style scoped>
