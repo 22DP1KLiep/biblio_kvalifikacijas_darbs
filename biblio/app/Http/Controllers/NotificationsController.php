@@ -17,7 +17,7 @@ class NotificationsController extends Controller
             ->latest()
             ->get();
 
-        // 🔔 atzīmē visas kā izlasītas
+        //  atzīmē visas kā izlasītas
         Notification::where('user_id', $user->id)
             ->where('is_read', false)
             ->update(['is_read' => true]);

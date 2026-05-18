@@ -221,12 +221,17 @@
 
     <div v-if="comments.length" class="space-y-3">
 
-        <div
-    v-for="c in showAllComments ? comments : comments.slice(0, visibleCommentsCount)"
-    :key="c.id"
-    :id="`comment-${c.id}`"
-    class="flex gap-4 py-4 border-b"
->
+    <div
+        v-for="c in showAllComments ? comments : comments.slice(0, visibleCommentsCount)"
+        :key="c.id"
+        :id="`comment-${c.id}`"
+        :class="[
+        'flex gap-4 py-4 border-b rounded-2xl transition-all duration-500 px-3',
+        highlightedCommentId === c.id
+            ? 'bg-orange-50 border border-orange-300 border-l-4 border-l-orange-400 shadow-[0_0_25px_rgba(251,146,60,0.25)] scale-[1.01]'
+            : ''
+    ]"
+    >
 
     <!-- Avatar -->
     <a
@@ -528,7 +533,7 @@ export default {
         this.fetchUserRating();
     }
 
-    // 🔥 HASH APSTRĀDE (ja atvērts no admin ar #comment-XX)
+    
     this.$nextTick(() => {
         const hash = window.location.hash;
 
@@ -536,6 +541,16 @@ export default {
             const id = hash.replace('#comment-', '');
 
             this.highlightedCommentId = parseInt(id);
+            setTimeout(() => {
+                const el = document.getElementById(`comment-${id}`);
+
+                if (el) {
+                    el.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+            }, 300);
 
             // automātiski parāda visus komentārus
             this.showAllComments = true;
@@ -849,7 +864,7 @@ handleScroll() {
         }
     },
 
-    // 👇 PIEVIENO ŠEIT
+    // PIEVIENO ŠEIT
     computed: {
         user() {
         return this.$page.props.auth?.user
@@ -857,8 +872,7 @@ handleScroll() {
         imageUrl() {
             const img = this.book?.image;
             if (!img) return 'https://via.placeholder.com/300';
-            // ja bilde ir no Google (pilns URL), atgriežam to tieši
-            return img.startsWith('http') ? img : `/${img}`;
+            return `/${img}`;
         },
         savedFolderIds() {
         return this.book?.folders?.map(f => f.id) || [];

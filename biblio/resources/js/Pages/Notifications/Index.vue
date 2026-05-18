@@ -1,25 +1,31 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { router } from '@inertiajs/vue3'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 
-// 🔥 saņem sākotnējos datus
+// Saņem paziņojumus no backend
 const props = defineProps({
   notifications: Array
 })
 
-// 🔥 padaram reactive
+// Padara paziņojumus reactive
 const notifications = ref(props.notifications)
 
-// 🔄 AUTO REFRESH
+// Filtrē nevajadzīgos paziņojumu tipus
+const filteredNotifications = computed(() => {
+  return notifications.value.filter(
+    n => n.type !== 'admin_restriction'
+  )
+})
+
+// Automātiski atjauno paziņojumus
 let interval = null
 
 const loadNotifications = async () => {
   try {
     const res = await axios.get('/api/notifications')
     notifications.value = res.data
-    console.log("refresh 🔄")
   } catch (e) {
     console.error(e)
   }
@@ -33,10 +39,10 @@ onUnmounted(() => {
   clearInterval(interval)
 })
 
-// 🔗 CLICK
+// Atver konkrēto paziņojumu
 const openNotification = async (n) => {
 
-  // ✔️ atzīmē kā izlasītu
+  // Atzīmē kā izlasītu
   if (!n.is_read) {
     await axios.post(`/notifications/${n.id}/read`)
   }
@@ -66,23 +72,21 @@ const openNotification = async (n) => {
     case 'admin_deleted_comment':
       router.get('/kabinets')
       break
-
-    case 'admin_restriction':
-      router.get('/kabinets')
-      break
   }
 }
 
-//  BACK
+// Atgriežas iepriekšējā lapā
 const goBack = () => {
   window.history.back()
 }
 
+// Dzēš vienu paziņojumu
 const deleteNotification = async (id) => {
   await axios.delete(`/notifications/${id}`)
   notifications.value = notifications.value.filter(n => n.id !== id)
 }
 
+// Dzēš visus paziņojumus
 const clearAll = async () => {
   await axios.delete('/notifications')
   notifications.value = []
@@ -94,12 +98,13 @@ const clearAll = async () => {
 
     <div class="notifications-page">
 
-      <!-- HEADER -->
+      <!-- Augšējā daļa -->
       <div class="notifications-header">
         
         <button @click="goBack" class="back-btn">
           ← Atpakaļ
         </button>
+
         <h2>Paziņojumi</h2>
         
         <button @click="clearAll" class="clear-btn">
@@ -108,26 +113,34 @@ const clearAll = async () => {
         
       </div>
 
-      <!-- NOTIFICATIONS -->
-      <div v-if="notifications.length" class="notifications-list">
+      <!-- Paziņojumu saraksts -->
+      <div
+        v-if="filteredNotifications.length"
+        class="notifications-list"
+      >
 
         <div
-          v-for="n in notifications"
+          v-for="n in filteredNotifications.filter(n =>
+            ['message', 'follow', 'comment_like', 'comment', 'admin_deleted_comment'].includes(n.type)
+          )"
           :key="n.id"
           class="notification-card"
           :class="{ unread: !n.is_read }"
           @click="openNotification(n)"
         >
+
+          <!-- Ikona -->
           <div class="icon">
             <span v-if="n.type === 'message'" class="material-icons">chat</span>
             <span v-if="n.type === 'follow'" class="material-icons">person_add</span>
             <span v-if="n.type === 'comment_like'" class="material-icons">favorite</span>
             <span v-if="n.type === 'comment'" class="material-icons">comment</span>
             <span v-if="n.type === 'admin_deleted_comment'" class="material-icons">warning</span>
-            <span v-if="n.type === 'admin_restriction'" class="material-icons">block</span>
           </div>
 
+          <!-- Teksts -->
           <div class="content">
+
             <p v-if="n.type === 'message'">
               <strong>{{ n.from_user?.username }}</strong>
               uzrakstīja tev ziņu
@@ -137,6 +150,7 @@ const clearAll = async () => {
               <strong>{{ n.from_user?.username }}</strong>
               sāka tev sekot
             </p>
+
             <p v-if="n.type === 'comment_like'">
               <strong>{{ n.from_user?.username }}</strong>
               patika tavs komentārs
@@ -151,14 +165,14 @@ const clearAll = async () => {
                Administrators izdzēsa tavu komentāru
             </p>
 
-            <p v-if="n.type === 'admin_restriction'">
-               Tev ierobežojumi līdz {{ n.data?.until }}
-            </p>
-
+            <!-- Datums -->
             <span class="time">
               {{ new Date(n.created_at).toLocaleString() }}
             </span>
+
           </div>
+
+          <!-- Dzēšanas poga -->
           <button
             @click.stop="deleteNotification(n.id)"
             class="delete-btn"
@@ -170,17 +184,17 @@ const clearAll = async () => {
 
       </div>
 
-      <!-- EMPTY -->
+      <!-- Ja nav paziņojumu -->
       <div v-else class="empty-state">
-        <div class="empty-icon">🔔</div>
-        <p>Tev vēl nav nevienas notifikācijas</p>
+        
+        <p>Tev vēl nav neviena paziņojuma.</p>
+
       </div>
 
     </div>
 
   </AuthenticatedLayout>
 </template>
-
 <style scoped>
 .notifications-page {
   padding: 60px 10%;
@@ -247,11 +261,6 @@ const clearAll = async () => {
   color: #999;
 }
 
-.empty-icon {
-  font-size: 40px;
-  margin-bottom: 10px;
-}
-
 .notifications-header {
   display: flex;
   align-items: center;
@@ -271,7 +280,7 @@ const clearAll = async () => {
 
 .back-btn:hover {
   background: #3E5879;
-} 
+}
 
 .material-icons {
   font-size: 24px;
@@ -299,7 +308,7 @@ const clearAll = async () => {
 }
 
 .delete-btn:hover .material-icons {
-  color: #e53935; /* sarkans hover */
+  color: #e53935;
 }
 
 .clear-btn {
