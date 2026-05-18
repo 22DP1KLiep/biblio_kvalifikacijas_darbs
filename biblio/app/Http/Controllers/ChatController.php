@@ -2,53 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Conversation;
-use App\Models\Message;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Conversation;
+use App\Models\Message;
 use App\Models\Notification;
 
 class ChatController extends Controller
 {
     /**
-     * Chats list (sidebar)
+     * Attēlo lietotāja čatu sarakstu.
+     * Tiek ielādēti sidebar dati ar privātajiem čatiem.
      */
     public function index(Request $request)
-{
-    $user = $request->user();
+    {
+        $user = $request->user();
 
-    return Inertia::render('Chats/Index', [
-        ...$this->sidebarData($user),
-        'activeConversationId' => null,
-    ]);
-}
-
+        return Inertia::render('Chats/Index', [
+            ...$this->sidebarData($user),
+            'activeConversationId' => null,
+        ]);
+    }
 
     /**
-     * Show single chat
+     * Atver konkrētu čatu un ielādē tā ziņas.
      */
     public function show(Request $request, Conversation $conversation)
     {
-
         $user = $request->user();
 
-        // security check
-        if (! $conversation->isMember($user)) {
+        // Pārbauda, vai lietotājs ir čata dalībnieks
+        if (!$conversation->isMember($user)) {
             abort(403);
         }
 
+        // Atzīmē ziņas kā izlasītas
         $conversation->users()->updateExistingPivot(
             $user->id,
             ['last_read_at' => now()]
         );
 
-
-        $conversation->users()->updateExistingPivot(
-        $user->id,
-        ['last_read_at' => now()]
-        );
-
-        // chat title
+        // Nosaka čata nosaukumu
         if ($conversation->isPrivate()) {
             $otherUser = $conversation->users
                 ->firstWhere('id', '!=', $user->id);
@@ -58,7 +52,7 @@ class ChatController extends Controller
             $title = $conversation->title;
         }
 
-        // messages (read-only)
+        // Iegūst ziņas no datubāzes
         $messages = $conversation->messages()
             ->with('user:id,username')
             ->orderBy('created_at')
@@ -85,159 +79,148 @@ class ChatController extends Controller
     }
 
     /**
-     * Store new message
+     * Saglabā jaunu ziņu čatā.
      */
     public function storeMessage(Request $request, Conversation $conversation)
-{
-    $user = $request->user();
+    {
+        $user = $request->user();
 
-    if (! Message::canSend($user, $conversation)) {
-        abort(403);
-    }
-
-    $validated = $request->validate([
-        'body' => 'required|string|max:2000',
-    ]);
-
-    $message = Message::create([
-        'conversation_id' => $conversation->id,
-        'user_id' => $user->id,
-        'body' => $validated['body'],
-    ]);
-
-    // 🔔 IZVEIDO NOTIFIKĀCIJAS VISIEM CITIEM DALĪBNIEKIEM
-    foreach ($conversation->users as $participant) {
-        if ($participant->id !== $user->id) {
-
-            Notification::create([
-                'user_id' => $participant->id,
-                'from_user_id' => $user->id,
-                'type' => 'message',
-                'data' => $conversation->id,
-            ]);
+        // Pārbauda, vai lietotājs drīkst sūtīt ziņu
+        if (!Message::canSend($user, $conversation)) {
+            abort(403);
         }
-    }
 
-    return redirect()->back();
-}
+        // Validē ievadīto tekstu
+        $validated = $request->validate([
+            'body' => 'required|string|max:2000',
+        ]);
 
-    /**
-     * Sidebar data (private chats + channels)
-     */
-   private function sidebarData($user)
-{
-    $conversations = $user->conversations()
-        ->with(['users', 'messages'])
-        ->get();
+        // Izveido ziņu datubāzē
+        $message = Message::create([
+            'conversation_id' => $conversation->id,
+            'user_id' => $user->id,
+            'body' => $validated['body'],
+        ]);
 
-    $privateChats = [];
-    $channels = [];
-
-    foreach ($conversations as $conversation) {
-
-        $pivot = $conversation->users
-            ->firstWhere('id', $user->id)
-            ->pivot;
-
-        $lastReadAt = $pivot->last_read_at;
-
-        $unreadCount = $conversation->messages
-            ->where('user_id', '!=', $user->id)
-            ->filter(function ($message) use ($lastReadAt) {
-                if (!$lastReadAt) return true;
-                return $message->created_at > $lastReadAt;
-            })
-            ->count();
-
-        if ($conversation->isPrivate()) {
-
-            $otherUser = $conversation->users
-                ->firstWhere('id', '!=', $user->id);
-
-            if ($otherUser) {
-                $privateChats[] = [
-                    'id' => $conversation->id,
-                    'username' => $otherUser->username,
-                    'unread' => $unreadCount,
-                ];
+        // Izveido paziņojumus citiem čata dalībniekiem
+        foreach ($conversation->users as $participant) {
+            if ($participant->id !== $user->id) {
+                Notification::create([
+                    'user_id' => $participant->id,
+                    'from_user_id' => $user->id,
+                    'type' => 'message',
+                    'data' => $conversation->id,
+                ]);
             }
         }
 
-        if ($conversation->isChannel()) {
-
-            $channels[] = [
-                'id' => $conversation->id,
-                'title' => $conversation->title,
-                'unread' => $unreadCount,
-            ];
-        }
-    }
-
-    return [
-        'privateChats' => $privateChats,
-    ];
-}
-
-
-
-
-
-    public function start(Request $request, \App\Models\User $user)
-{
-    $authUser = $request->user();
-
-    // nevar sākt čatu ar sevi
-    if ($authUser->id === $user->id) {
         return redirect()->back();
     }
 
-    // meklē vai jau eksistē private čats starp šiem 2
-    $existingConversation = \App\Models\Conversation::where('type', 'private')
-        ->whereHas('users', function ($q) use ($authUser) {
-            $q->where('user_id', $authUser->id);
-        })
-        ->whereHas('users', function ($q) use ($user) {
-            $q->where('user_id', $user->id);
-        })
-        ->first();
+    /**
+     * Sagatavo sidebar datus (privātie čati).
+     */
+    private function sidebarData($user)
+    {
+        $conversations = $user->conversations()
+            ->with(['users', 'messages'])
+            ->get();
 
-    if ($existingConversation) {
-        return redirect()->route('chats.show', $existingConversation->id);
+        $privateChats = [];
+
+        foreach ($conversations as $conversation) {
+
+            // Iegūst informāciju par pēdējo izlasīto ziņu
+            $pivot = $conversation->users
+                ->firstWhere('id', $user->id)
+                ->pivot;
+
+            $lastReadAt = $pivot->last_read_at;
+
+            // Aprēķina neizlasīto ziņu skaitu
+            $unreadCount = $conversation->messages
+                ->where('user_id', '!=', $user->id)
+                ->filter(function ($message) use ($lastReadAt) {
+                    if (!$lastReadAt) return true;
+                    return $message->created_at > $lastReadAt;
+                })
+                ->count();
+
+            // Apstrādā privātos čatus
+            if ($conversation->isPrivate()) {
+                $otherUser = $conversation->users
+                    ->firstWhere('id', '!=', $user->id);
+
+                if ($otherUser) {
+                    $privateChats[] = [
+                        'id' => $conversation->id,
+                        'username' => $otherUser->username,
+                        'unread' => $unreadCount,
+                    ];
+                }
+            }
+        }
+
+        return [
+            'privateChats' => $privateChats,
+        ];
     }
 
-    // izveido jaunu private conversation
-    $conversation = \App\Models\Conversation::create([
-        'type' => 'private',
-        'title' => null,
-        'owner_id' => $authUser->id,
-        'join_type' => 'open',
-    ]);
+    /**
+     * Uzsāk jaunu privāto čatu.
+     */
+    public function start(Request $request, \App\Models\User $user)
+    {
+        $authUser = $request->user();
 
-    // piesaista abus
-    $conversation->users()->attach($authUser->id, ['role' => 'member']);
-    $conversation->users()->attach($user->id, ['role' => 'member']);
+        // Neļauj sākt čatu ar sevi
+        if ($authUser->id === $user->id) {
+            return redirect()->back();
+        }
 
-    return redirect()->route('chats.show', $conversation->id);
-}
+        // Pārbauda, vai čats jau eksistē
+        $existingConversation = \App\Models\Conversation::where('type', 'private')
+            ->whereHas('users', fn($q) => $q->where('user_id', $authUser->id))
+            ->whereHas('users', fn($q) => $q->where('user_id', $user->id))
+            ->first();
 
-public function new(Request $request)
-{
-    $authUser = $request->user();
+        if ($existingConversation) {
+            return redirect()->route('chats.show', $existingConversation->id);
+        }
 
-    $followingIds = $authUser->following()->pluck('following_id');
+        // Izveido jaunu čatu
+        $conversation = \App\Models\Conversation::create([
+            'type' => 'private',
+            'title' => null,
+            'owner_id' => $authUser->id,
+            'join_type' => 'open',
+        ]);
 
-    $users = \App\Models\User::whereIn('id', $followingIds)
-        ->where('username', '!=', 'welcomebot')
-        ->select('id', 'username')
-        ->orderBy('username')
-        ->get();
+        // Pievieno lietotājus čatam
+        $conversation->users()->attach($authUser->id, ['role' => 'member']);
+        $conversation->users()->attach($user->id, ['role' => 'member']);
 
-    
+        return redirect()->route('chats.show', $conversation->id);
+    }
 
-    return Inertia::render('Chats/New', [
-        'users' => $users,
-        ...$this->sidebarData($authUser),
-    ]);
-}
+    /**
+     * Attēlo jauna čata izveides lapu.
+     */
+    public function new(Request $request)
+    {
+        $authUser = $request->user();
 
+        $followingIds = $authUser->following()->pluck('following_id');
+
+        $users = \App\Models\User::whereIn('id', $followingIds)
+            ->where('username', '!=', 'welcomebot')
+            ->select('id', 'username')
+            ->orderBy('username')
+            ->get();
+
+        return Inertia::render('Chats/New', [
+            'users' => $users,
+            ...$this->sidebarData($authUser),
+        ]);
+    }
 }

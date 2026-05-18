@@ -8,31 +8,62 @@ use Illuminate\Http\Request;
 
 class RatingController extends Controller
 {
+    /**
+     * Atgriež visus konkrētās grāmatas vērtējumus.
+     * 
+     * Funkcionalitāte:
+     * - Iegūst visus vērtējumus pēc grāmatas ID
+     */
     public function index($bookId)
     {
         return Rating::where('book_id', $bookId)->get();
     }
 
+    /**
+     * Pievieno vai atjaunina lietotāja vērtējumu grāmatai.
+     * 
+     * Funkcionalitāte:
+     * - Pārbauda, vai lietotājs nav ierobežots
+     * - Validē ievadīto vērtējumu (1–5)
+     * - Ja vērtējums jau eksistē, tas tiek atjaunināts
+     * - Ja neeksistē, tiek izveidots jauns ieraksts
+     */
     public function store(Request $request, $bookId)
     {
-        //Validate if user is restricted
-        if (auth()->user()->isRestricted()) {
-        return response()->json([
-            'message' => 'Tava konta aktivitātes ir ierobežotas līdz ' 
-                . auth()->user()->restrictionEndsAt()
-        ], 403);
-    }
-    
+        $user = auth()->user();
+
+        // Pārbauda, vai lietotājs nav ierobežots
+        if ($user && $user->isRestricted()) {
+            return response()->json([
+                'message' => 'Tava konta aktivitātes ir ierobežotas līdz ' 
+                    . $user->restrictionEndsAt()
+            ], 403);
+        }
+
+        // Datu validācija
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
         ]);
 
+        // Vērtējuma izveide vai atjaunināšana
         return Rating::updateOrCreate(
-            ['book_id' => $bookId, 'user_id' => auth()->id()],
-            ['rating' => $request->rating]
+            [
+                'book_id' => $bookId,
+                'user_id' => auth()->id()
+            ],
+            [
+                'rating' => $request->rating
+            ]
         );
     }
 
+    /**
+     * Atgriež pašreizējā lietotāja vērtējumu konkrētai grāmatai.
+     * 
+     * Funkcionalitāte:
+     * - Meklē lietotāja vērtējumu pēc grāmatas ID
+     * - Ja vērtējums nav piešķirts, atgriež null
+     */
     public function show(Book $book)
     {
         $rating = Rating::where('book_id', $book->id)
@@ -43,5 +74,4 @@ class RatingController extends Controller
             'rating' => $rating ? $rating->rating : null
         ]);
     }
-
 }

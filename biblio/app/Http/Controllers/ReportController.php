@@ -2,19 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\Report;
 use App\Models\Comment;
-use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
+    /**
+     * Saglabā ziņojumu par neatbilstošu komentāru.
+     *
+     * Funkcionalitāte:
+     * - Validē ievadīto iemeslu
+     * - Pārbauda, vai lietotājs jau nav ziņojis par šo komentāru
+     * - Saglabā ziņojumu datubāzē
+     */
     public function store(Request $request, Comment $comment)
     {
+        // Validē ievadīto iemeslu (nav obligāts)
         $request->validate([
             'reason' => 'nullable|string|max:1000',
         ]);
 
-        // Neļaujam ziņot vairākas reizes par to pašu komentāru
+        // Pārbauda, vai lietotājs jau ziņojis par šo komentāru
         $alreadyReported = Report::where('comment_id', $comment->id)
             ->where('reported_by', auth()->id())
             ->exists();
@@ -25,12 +34,15 @@ class ReportController extends Controller
             ], 400);
         }
 
+        // Izveido jaunu ziņojumu
         Report::create([
             'comment_id' => $comment->id,
             'reported_by' => auth()->id(),
             'reason' => $request->reason,
         ]);
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true
+        ]);
     }
 }

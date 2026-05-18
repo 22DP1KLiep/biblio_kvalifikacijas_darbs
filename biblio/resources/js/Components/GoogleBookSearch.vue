@@ -51,14 +51,14 @@
       <!-- Avota pārslēgs + meklēšana -->
       <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-4">
         <div class="inline-flex rounded overflow-hidden border">
-          <button
+          <!-- <button
             :class="['px-4 py-2', mode==='local' ? 'bg-[#213555] text-white' : 'bg-white text-gray-700']"
             @click="switchMode('local')"
-          >Lokālās</button>
-          <button
+          >Lokālās</button> -->
+          <!-- <button
             :class="['px-4 py-2 border-l', mode==='google' ? 'bg-[#213555] text-white' : 'bg-white text-gray-700']"
             @click="switchMode('google')"
-          >Google Books</button>
+          >Google Books</button> -->
         </div>
 
         <div class="flex w-full md:w-auto gap-2">

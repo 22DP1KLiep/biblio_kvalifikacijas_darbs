@@ -7,6 +7,15 @@ use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
+    /**
+     * Atgriež visus konkrētās grāmatas komentārus.
+     * 
+     * Funkcionalitāte:
+     * - Ielādē komentārus ar lietotāja datiem
+     * - Saskaita reakciju (like) skaitu
+     * - Sakārto pēc popularitātes un datuma
+     * - Nosaka, vai pašreizējais lietotājs ir atzīmējis komentāru ar "patīk"
+     */
     public function index($bookId)
     {
         return Comment::with('user')
@@ -24,9 +33,18 @@ class CommentController extends Controller
             });
     }
 
+    /**
+     * Pievieno jaunu komentāru konkrētai grāmatai.
+     * 
+     * Funkcionalitāte:
+     * - Pārbauda, vai lietotājs ir autorizēts
+     * - Pārbauda, vai lietotājs nav ierobežots
+     * - Validē ievadītos datus
+     * - Saglabā komentāru datubāzē
+     */
     public function store(Request $request, $bookId)
     {
-        // 🔒 JA NAV USER VAI IR RESTRICTED
+        // Pārbauda, vai lietotājs ir autorizēts un nav ierobežots
         if (!auth()->check() || auth()->user()->isRestricted()) {
             return response()->json([
                 'message' => 'Tava konta aktivitātes ir ierobežotas līdz ' 
@@ -34,10 +52,12 @@ class CommentController extends Controller
             ], 403);
         }
 
+        // Datu validācija
         $request->validate([
             'comment' => 'required|string|max:1000',
         ]);
 
+        // Komentāra saglabāšana
         return Comment::create([
             'book_id' => $bookId,
             'user_id' => auth()->id(),
@@ -45,35 +65,55 @@ class CommentController extends Controller
         ]);
     }
 
+    /**
+     * Dzēš komentāru.
+     * 
+     * Funkcionalitāte:
+     * - Pārbauda, vai lietotājs nav ierobežots
+     * - Atļauj dzēst tikai komentāra autoram vai administratoram
+     * - Dzēš komentāru no datubāzes
+     */
     public function destroy($commentId)
     {
         $user = auth()->user();
 
-        // 🔒 JA RESTRICTED
+        // Pārbauda, vai lietotājs nav ierobežots
         if ($user && $user->isRestricted()) {
             abort(403, 'Tu nevari dzēst komentārus, jo esi ierobežots');
         }
 
         $comment = Comment::findOrFail($commentId);
 
+        // Pārbauda tiesības dzēst komentāru
         if ($comment->user_id !== $user->id && $user->role !== 'admin') {
             abort(403);
         }
 
+        // Komentāra dzēšana
         $comment->delete();
 
         return redirect()->back();
     }
 
+    /**
+     * Pievieno vai noņem reakciju "patīk" komentāram.
+     * 
+     * Funkcionalitāte:
+     * - Pārbauda lietotāja autorizāciju
+     * - Pārbauda ierobežojumus
+     * - Pārslēdz "patīk" statusu (toggle)
+     * - Atgriež aktuālo reakciju skaitu
+     */
     public function like($id)
     {
         $user = auth()->user();
 
+        // Pārbauda, vai lietotājs ir autorizēts
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        // 🔒 JA RESTRICTED
+        // Pārbauda, vai lietotājs nav ierobežots
         if ($user->isRestricted()) {
             return response()->json([
                 'message' => 'Tu nevari balsot par komentāriem, jo esi ierobežots'
@@ -82,12 +122,15 @@ class CommentController extends Controller
 
         $comment = Comment::findOrFail($id);
 
+        // Pārbauda, vai jau ir "patīk"
         $existing = $comment->likes()->where('user_id', $user->id)->first();
 
         if ($existing) {
+            // Noņem reakciju
             $existing->delete();
             $isLiked = false;
         } else {
+            // Pievieno reakciju
             $comment->likes()->create([
                 'user_id' => $user->id,
                 'comment_id' => $comment->id
@@ -95,6 +138,7 @@ class CommentController extends Controller
             $isLiked = true;
         }
 
+        // Atgriež rezultātu
         return response()->json([
             'likes_count' => $comment->likes()->count(),
             'is_liked' => $isLiked
