@@ -6,7 +6,7 @@ use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
-| CONTROLLERS
+| Kontrolieri
 |--------------------------------------------------------------------------
 */
 
@@ -19,7 +19,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\GoogleBooksController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\CommentLikeController;
-use App\Http\Controllers\ReportController; // Lietotāja report (ne admin)
+use App\Http\Controllers\ReportController; 
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FollowController;
@@ -27,7 +27,7 @@ use App\Http\Controllers\FollowController;
 
 /*
 |--------------------------------------------------------------------------
-| PUBLIC PAGES (Inertia Vue)
+| Publiskās lapas
 |--------------------------------------------------------------------------
 */
 
@@ -49,7 +49,7 @@ Route::get('/folders/{id}', [FolderController::class, 'show']);
 
 /*
 |--------------------------------------------------------------------------
-| AUTHENTICATION (guest only)
+| Autentificēšanās maršruti
 |--------------------------------------------------------------------------
 */
 
@@ -66,7 +66,7 @@ Route::middleware('guest')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| LOGOUT
+| Iziet
 |--------------------------------------------------------------------------
 */
 
@@ -80,7 +80,7 @@ Route::post('/logout', function () {
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN ROUTES
+| Administratora maršruti
 |--------------------------------------------------------------------------
 | Pieejams tikai:
 | - auth (ielogoti)
@@ -131,14 +131,14 @@ Route::middleware(['auth', 'admin', 'check.restricted'])
 
 /*
 |--------------------------------------------------------------------------
-| AUTHENTICATED USER ROUTES
+| Autenficēta lietotāja maršruti
 |--------------------------------------------------------------------------
 */
 
 Route::middleware(['auth', 'check.restricted'])->group(function () {
     /*
     |--------------------------------------------------------------------------
-    | USER PROFILE
+    | Lietotāa profils
     |--------------------------------------------------------------------------
     */
 Route::get('/api/users/search', [UserController::class, 'search']);
@@ -155,7 +155,7 @@ Route::get('/api/users/search', [UserController::class, 'search']);
 
     /*
     |--------------------------------------------------------------------------
-    | KABINETS
+    | Kabinets
     |--------------------------------------------------------------------------
     */
 
@@ -169,7 +169,7 @@ Route::get('/api/users/search', [UserController::class, 'search']);
     Route::post('/user/avatar', [UserController::class, 'uploadAvatar'])->middleware('auth');
     /*
     |--------------------------------------------------------------------------
-    | RATINGS
+    | Vēŗtējumi
     |--------------------------------------------------------------------------
     */
 
@@ -179,7 +179,7 @@ Route::get('/api/users/search', [UserController::class, 'search']);
 
     /*
     |--------------------------------------------------------------------------
-    | COMMENTS
+    | Komentāri
     |--------------------------------------------------------------------------
     */
 
@@ -197,7 +197,7 @@ Route::get('/api/users/search', [UserController::class, 'search']);
 
     /*
     |--------------------------------------------------------------------------
-    | FOLDERS
+    | Mapes
     |--------------------------------------------------------------------------
     */
 
@@ -223,7 +223,7 @@ Route::get('/api/users/search', [UserController::class, 'search']);
 
     /*
     |--------------------------------------------------------------------------
-    | CHAT SYSTEM
+    | Čata sistēma
     |--------------------------------------------------------------------------
     */
 
@@ -246,7 +246,7 @@ Route::get('/api/users/search', [UserController::class, 'search']);
 
     /*
     |--------------------------------------------------------------------------
-    | NOTIFICATIONS
+    | Paziņojumi
     |--------------------------------------------------------------------------
     */
 
@@ -291,7 +291,7 @@ Route::delete('/notifications', function () {
 
 /*
 |--------------------------------------------------------------------------
-| PUBLIC API ROUTES
+| Publiskie API
 |--------------------------------------------------------------------------
 */
 Route::get('/get/all/books', [BookController::class, 'get_all']);

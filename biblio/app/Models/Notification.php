@@ -6,20 +6,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
+    // Lauki, kurus atļauts masveidā aizpildīt
     protected $fillable = [
-    'user_id',
-    'from_user_id',
-    'type',
-    'data',
-    'is_read'
-];
+        'user_id',
+        'from_user_id',
+        'type',
+        'data',
+        'is_read'
+    ];
 
-protected $casts = [
+    // Automātiski pārveido datu lauku par masīvu
+    protected $casts = [
         'data' => 'array',
     ];
 
-public function fromUser()
-{
-    return $this->belongsTo(User::class, 'from_user_id');
-}
+    // Lietotājs, kurš izveidoja paziņojumu
+    public function fromUser()
+    {
+        return $this->belongsTo(User::class, 'from_user_id');
+    }
 }

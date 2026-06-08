@@ -15,7 +15,7 @@ use Inertia\Response;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Attēlo lietotāja profila rediģēšanas formu.
      */
     public function edit(Request $request): Response
     {
@@ -26,59 +26,77 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Atjaunina lietotāja profila informāciju.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+        // Aizpilda lietotāja datus ar validētajām vērtībām
         $request->user()->fill($request->validated());
 
+        // Ja tiek mainīts e-pasts, noņem e-pasta apstiprinājumu
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
         }
 
+        // Saglabā izmaiņas datubāzē
         $request->user()->save();
 
         return Redirect::route('profile.edit');
     }
 
     /**
-     * Delete the user's account.
+     * Dzēš lietotāja kontu.
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Pārbauda lietotāja paroli pirms konta dzēšanas
         $request->validate([
             'password' => ['required', 'current_password'],
         ]);
 
         $user = $request->user();
 
+        // Atslēdz lietotāju no sistēmas
         Auth::logout();
 
+        // Dzēš lietotāja kontu
         $user->delete();
 
+        // Dzēš aktīvo sesiju un ģenerē jaunu CSRF tokenu
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
     }
 
+    /**
+     * Attēlo izvēlētā lietotāja publisko profilu.
+     */
     public function show(User $user)
-{
-    $authUser = auth()->user();
+    {
+        // Iegūst pašreiz autorizēto lietotāju
+        $authUser = auth()->user();
 
-    $user->loadCount(['followers', 'following']);
+        // Pievieno sekotāju un sekojamo skaitu
+        $user->loadCount(['followers', 'following']);
 
-    $publicFolders = $user->folders()
-        ->where('is_public', true)
-        ->with('books')
-        ->get();
+        // Iegūst tikai publiski pieejamās mapes
+        $publicFolders = $user->folders()
+            ->where('is_public', true)
+            ->with('books')
+            ->get();
 
-    return Inertia::render('Profile/Show', [
-        'profileUser' => $user,
-        'isFollowing' => $authUser
-            ? $authUser->following()->where('following_id', $user->id)->exists()
-            : false,
-        'publicFolders' => $publicFolders,
-    ]);
-}
+        return Inertia::render('Profile/Show', [
+            'profileUser' => $user,
+
+            // Pārbauda, vai autorizētais lietotājs seko šim profilam
+            'isFollowing' => $authUser
+                ? $authUser->following()
+                    ->where('following_id', $user->id)
+                    ->exists()
+                : false,
+
+            'publicFolders' => $publicFolders,
+        ]);
+    }
 }
