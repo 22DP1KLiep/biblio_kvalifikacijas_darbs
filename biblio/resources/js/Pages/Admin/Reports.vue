@@ -2,6 +2,7 @@
 import { router } from '@inertiajs/vue3'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
 import { computed, ref } from 'vue'
+import axios from 'axios'
 
 const props = defineProps({
     reports: Array
@@ -72,18 +73,16 @@ const deleteComment = () => {
 const confirmDeleteComment = () => {
     if (!selectedReport.value) return
 
-    router.delete(
-        `/comments/${selectedReport.value.comment.id}`,
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                showDeleteModal.value = false
-                closeModal()
+    axios.delete(`/comments/${selectedReport.value.comment.id}`)
+        .then(() => {
+            showDeleteModal.value = false
+            closeModal()
 
-                router.reload({ only: ['reports'] })
-            }
-        }
-    )
+            router.reload({ only: ['reports'] })
+        })
+        .catch(error => {
+            console.error(error)
+        })
 }
 
 

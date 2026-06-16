@@ -74,26 +74,25 @@ class CommentController extends Controller
      * - Dzēš komentāru no datubāzes
      */
     public function destroy($commentId)
-    {
-        $user = auth()->user();
+{
+    $user = auth()->user();
 
-        // Pārbauda, vai lietotājs nav ierobežots
-        if ($user && $user->isRestricted()) {
-            abort(403, 'Tu nevari dzēst komentārus, jo esi ierobežots');
-        }
-
-        $comment = Comment::findOrFail($commentId);
-
-        // Pārbauda tiesības dzēst komentāru
-        if ($comment->user_id !== $user->id && $user->role !== 'admin') {
-            abort(403);
-        }
-
-        // Komentāra dzēšana
-        $comment->delete();
-
-        return redirect()->back();
+    if ($user && $user->isRestricted()) {
+        abort(403);
     }
+
+    $comment = Comment::findOrFail($commentId);
+
+    if ($comment->user_id !== $user->id && $user->role !== 'admin') {
+        abort(403);
+    }
+
+    $comment->delete();
+
+    return response()->json([
+        'success' => true
+    ]);
+}
 
     /**
      * Pievieno vai noņem reakciju "patīk" komentāram.
