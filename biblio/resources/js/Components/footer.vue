@@ -1,13 +1,15 @@
 <script setup>
+// Iegūst pašreizējo gadu automātiskai attēlošanai kājenē
 const year = new Date().getFullYear()
 </script>
 
 <template>
+  <!-- Vietnes kājene -->
   <footer class="footer">
 
     <div class="footer-container">
 
-      <!-- LOGO / PAR -->
+      <!-- Vietnes nosaukums un īss apraksts -->
       <div class="footer-section">
         <h2 class="footer-logo">Biblio</h2>
         <p class="footer-text">
@@ -15,7 +17,7 @@ const year = new Date().getFullYear()
         </p>
       </div>
 
-      <!-- NAV -->
+      <!-- Navigācijas saites -->
       <div class="footer-section">
         <h3>Navigācija</h3>
         <ul>
@@ -24,14 +26,14 @@ const year = new Date().getFullYear()
         </ul>
       </div>
 
-      <!-- KONTAKTI -->
+      <!-- Kontaktinformācija -->
       <div class="footer-section">
         <h3>Kontakti</h3>
         <p>Email: info@biblio.lv</p>
         <p>Tel: +371 00000000</p>
       </div>
 
-      <!-- SOCIAL -->
+      <!-- Sociālo tīklu saites -->
       <div class="footer-section">
         <h3>Seko mums</h3>
         <div class="socials">
@@ -43,7 +45,7 @@ const year = new Date().getFullYear()
 
     </div>
 
-    <!-- BOTTOM -->
+    <!-- Autortiesību informācija -->
     <div class="footer-bottom">
       <p>© {{ year }} Biblio. Visas tiesības aizsargātas.</p>
     </div>
@@ -52,13 +54,15 @@ const year = new Date().getFullYear()
 </template>
 
 <style scoped>
+
+/* Galvenais kājenes stils */
 .footer {
   background: linear-gradient(135deg, #213555, #3E5879);
   color: #f5efe7;
   padding: 50px 6% 20px;
 }
 
-/* GRID */
+/* Kājenes sekciju izkārtojums */
 .footer-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -67,27 +71,28 @@ const year = new Date().getFullYear()
   margin: 0 auto;
 }
 
-/* SECTION */
+/* Sekciju virsraksti */
 .footer-section h3 {
   margin-bottom: 12px;
   font-size: 15px;
   color: #ffffff;
 }
 
+/* Apraksta teksts */
 .footer-text {
   font-size: 13px;
   color: #d1d5db;
   line-height: 1.6;
 }
 
-/* LOGO */
+/* Vietnes logotipa stils */
 .footer-logo {
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
-/* LINKS */
+/* Navigācijas saites */
 .footer-section ul {
   list-style: none;
   padding: 0;
@@ -108,7 +113,7 @@ const year = new Date().getFullYear()
   color: #e6722a;
 }
 
-/* SOCIAL */
+/* Sociālo tīklu pogas */
 .socials {
   display: flex;
   gap: 10px;
@@ -126,7 +131,7 @@ const year = new Date().getFullYear()
   color: white;
 }
 
-/* BOTTOM */
+/* Kājenes apakšējā daļa */
 .footer-bottom {
   text-align: center;
   margin-top: 40px;

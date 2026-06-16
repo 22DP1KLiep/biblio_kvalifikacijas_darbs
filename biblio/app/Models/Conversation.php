@@ -2,11 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\User;
-use App\Models\Message;
-
+use Illuminate\Database\Eloquent\Model;
 
 class Conversation extends Model
 {
@@ -19,75 +16,68 @@ class Conversation extends Model
         'join_type',
     ];
 
-    /* --------------------
-     | Relationships
-     | --------------------
-     */
+    // Sarunas dalībnieki
+    public function users()
+    {
+        return $this->belongsToMany(User::class)
+            ->withPivot(['role', 'last_read_at'])
+            ->withTimestamps();
+    }
 
-    // members of the conversation
-   public function users()
-{
-    return $this->belongsToMany(User::class)
-        ->withPivot(['role', 'last_read_at'])
-        ->withTimestamps();
-}
-
-
-    // owner of the channel
+    // Sarunas īpašnieks
     public function owner()
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
 
-    // messages (chat or channel posts)
+    // Sarunas ziņojumi
     public function messages()
     {
         return $this->hasMany(Message::class);
     }
 
-    /* --------------------
-     | Helpers
-     | --------------------
-     */
-
+    // Vai privāta saruna
     public function isPrivate()
     {
         return $this->type === 'private';
     }
 
+    // Vai kanāls
     public function isChannel()
     {
         return $this->type === 'channel';
     }
 
-    /* --------------------
- | Permission helpers
- | --------------------
- */
+    // Vai lietotājs ir dalībnieks
+    public function isMember(User $user): bool
+    {
+        return $this->users()
+            ->where('user_id', $user->id)
+            ->exists();
+    }
 
-public function isMember(User $user): bool
-{
-    return $this->users()
-        ->where('user_id', $user->id)
-        ->exists();
-}
+    // Lietotāja loma sarunā
+    public function roleOf(User $user): ?string
+    {
+        $member = $this->users()
+            ->where('user_id', $user->id)
+            ->first();
 
-public function roleOf(User $user): ?string
-{
-    $member = $this->users()
-        ->where('user_id', $user->id)
-        ->first();
+        return $member?->pivot?->role;
+    }
 
-    return $member?->pivot?->role;
-}
+    // Vai īpašnieks
+    public function isOwner(User $user): bool
+    {
+        return $this->roleOf($user) === 'owner';
+    }
 
-public function isOwner(User $user): bool
-{
-    return $this->roleOf($user) === 'owner';
-}
-
-public function isAdmin(User $user): bool
-{
-    return in_array($this->roleOf($user), ['owner', 'admin']);
-}
+    // Vai administrators
+    public function isAdmin(User $user): bool
+    {
+        return in_array(
+            $this->roleOf($user),
+            ['owner', 'admin']
+        );
+    }
 }

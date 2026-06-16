@@ -9,16 +9,22 @@ class Folder extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'name', 'is_public'];
+    // Lauki, kurus atļauts masveidā aizpildīt
+    protected $fillable = [
+        'user_id',
+        'name',
+        'is_public'
+    ];
 
+    // Mapes īpašnieks
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    // Grāmatas, kas pievienotas mapei
     public function books()
     {
         return $this->belongsToMany(Book::class);
     }
 }
-

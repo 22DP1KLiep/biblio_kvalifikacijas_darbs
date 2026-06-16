@@ -1,50 +1,29 @@
 <template>
-
-    <!-- galvenais konteiners -->
+    <!-- Top grāmatu saraksts -->
     <div class="container mx-auto p-4">
 
-        <!-- lapas virsraksts -->
-        <h1 class="text-2xl font-bold mb-4 text-center">
-            Top Books
-        </h1>
+        <!-- Lapas virsraksts -->
+        <h1 class="text-2xl font-bold mb-4 text-center">Top Books</h1>
 
-        <!-- grāmatu režģis -->
-        <div
-            v-if="books.length"
-            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-        >
+        <!-- Grāmatu kartīšu attēlošana -->
+        <div v-if="books.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
-            <!-- viena grāmatas kartiņa -->
-            <div
-                v-for="book in books"
-                :key="book.id"
-                class="p-4 bg-white rounded-lg shadow-lg"
-            >
+            <!-- Vienas grāmatas kartīte -->
+            <div v-for="book in books" :key="book.id" class="p-4 bg-white rounded-lg shadow-lg">
 
-                <!-- grāmatas attēls -->
+                <!-- Grāmatas attēls -->
                 <img
                     :src="book.image"
                     :alt="book.title"
                     class="w-full h-48 object-cover rounded-md mb-4"
                 >
 
-                <!-- grāmatas nosaukums -->
-                <h2 class="text-lg font-semibold">
-                    {{ book.title }}
-                </h2>
+                <!-- Grāmatas pamatinformācija -->
+                <h2 class="text-lg font-semibold">{{ book.title }}</h2>
+                <p class="text-gray-600 text-sm">by {{ book.author }}</p>
 
-                <!-- grāmatas autors -->
-                <p class="text-gray-600 text-sm">
-                    by {{ book.author }}
-                </p>
-
-                <!-- žanru saraksts -->
-                <div
-                    v-if="book.genres && book.genres.length"
-                    class="mt-2"
-                >
-
-                  <!-- viens žanrs -->
+                <!-- Grāmatas žanri -->
+                <div v-if="book.genres && book.genres.length" class="mt-2">
                   <span
                       v-for="genre in book.genres"
                       :key="genre.id"
@@ -54,12 +33,12 @@
                   </span>
                 </div>
 
-                <!-- grāmatas apraksts -->
+                <!-- Grāmatas apraksts -->
                 <p class="text-sm mt-2 text-gray-700">
                     {{ book.description }}
                 </p>
 
-                <!-- poga grāmatas apskatei -->
+                <!-- Poga grāmatas apskatei -->
                 <button
                     class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                     @click="inspectBook(book.id)"
@@ -69,13 +48,11 @@
             </div>
         </div>
 
-        <!-- teksts, ja grāmatas vēl nav ielādētas -->
-        <p
-            v-else
-            class="text-gray-500 text-center"
-        >
+        <!-- Ziņojums datu ielādes laikā -->
+        <p v-else class="text-gray-500 text-center">
             Loading books...
         </p>
+
     </div>
 </template>
 
@@ -86,7 +63,7 @@ import axios from 'axios';
 
 export default {
 
-    // komponentes dati
+    // Komponentes dati
     data() {
         return {
 
@@ -95,15 +72,13 @@ export default {
         };
     },
 
-    // izsaucas pēc komponentes ielādes
+    // Datu ielāde pēc komponentes atvēršanas
     mounted() {
 
         // iegūst visas grāmatas no backend
         axios.get('/get/all/books')
 
             .then(response => {
-
-                // saglabā saņemtās grāmatas
                 this.books = response.data;
             })
 
@@ -114,9 +89,10 @@ export default {
             });
     },
 
+    // Komponentes funkcijas
     methods: {
 
-        // atver konkrētās grāmatas lapu
+        // Atver izvēlētās grāmatas detalizēto skatu
         inspectBook(id) {
 
             // pāriet uz grāmatas detaļu lapu
@@ -128,7 +104,7 @@ export default {
 
 <style>
 
-/* pamata stils visai lapai */
+/* Lapas pamatstils */
 body {
 
     /* fonta stils */

@@ -8,17 +8,12 @@ use Illuminate\Notifications\Notifiable;
 use Carbon\Carbon;
 use App\Models\Conversation;
 
-
-
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    /*Masveidā aizpildāmie lauki*/
+
     protected $fillable = [
         'name',
         'username',
@@ -29,57 +24,80 @@ class User extends Authenticatable
         'restriction_reason',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
+    /*Slēptie lauki*/
+
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
+    /*Automātiskā datu tipu pārveidošana*/
+
     protected $casts = [
-    'email_verified_at' => 'datetime',
-    'restricted_until' => 'datetime',
+        'email_verified_at' => 'datetime',
+        'restricted_until' => 'datetime',
     ];
 
+    /*Relācijas*/
 
-    /**
-     * Attiecība ar feedback (ja nepieciešams)
-     */
+    // Lietotāja atsauksmes
     public function feedbacks()
     {
         return $this->hasMany(Feedback::class);
     }
 
+    // Lietotāja izveidotās mapes
     public function folders()
     {
         return $this->hasMany(Folder::class);
     }
 
-        /**
-     * Pārbauda, vai lietotājs ir ierobežots (read-only)
-     */
-    public function isRestricted(): bool
-{
-    return $this->restricted_until
-        && $this->restricted_until->isFuture();
-}
+    // Sarunas, kurās lietotājs piedalās
+    public function conversations()
+    {
+        return $this->belongsToMany(Conversation::class)
+            ->withPivot('role')
+            ->withTimestamps();
+    }
 
+    // Lietotāji, kuriem  sekoju
+    public function following()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'followers',
+            'follower_id',
+            'following_id'
+        )->withTimestamps();
+    }
+
+    // Lietotāji, kuri seko 
+    public function followers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'followers',
+            'following_id',
+            'follower_id'
+        )->withTimestamps();
+    }
+
+    /*Ierobežojumu pārvaldība*/
+
+    // Pārbauda, vai lietotājam ir aktīvs ierobežojums
+    public function isRestricted(): bool
+    {
+        return $this->restricted_until
+            && $this->restricted_until->isFuture();
+    }
+
+    // Pārbauda, vai lietotājs ir bloķēts
     public function isBanned(): bool
     {
         return $this->status === 'banned';
     }
 
-    /**
-     * Atgriež datumu, līdz kuram lietotājs ir ierobežots (UI vajadzībām)
-     */
+    // Atgriež ierobežojuma beigu datumu lietotāja saskarnei
     public function restrictionEndsAt(): ?string
     {
         return $this->restricted_until
@@ -87,7 +105,7 @@ class User extends Authenticatable
             : null;
     }
 
-
+    // Automātiski noņem ierobežojumu, ja tā termiņš ir beidzies
     public function liftRestrictionIfExpired(): void
     {
         if (
@@ -102,96 +120,5 @@ class User extends Authenticatable
             ]);
         }
     }
-
-public function conversations()
-{
-    return $this->belongsToMany(Conversation::class)
-        ->withPivot('role')
-        ->withTimestamps();
-}
-
-protected static function booted()
-{
-    static::created(function ($user) {
-
-        // -------------------------
-        // 1️⃣ Pievieno Community kanālam
-        // -------------------------
-        $community = \App\Models\Conversation::where('title', 'Community')
-            ->where('type', 'channel')
-            ->first();
-
-        if ($community) {
-            $community->users()->attach($user->id, ['role' => 'member']);
-        }
-
-        // -------------------------
-        // 2️⃣ Izveido Welcome Bot privāto čatu
-        // -------------------------
-        $bot = \App\Models\User::where('username', 'welcomebot')->first();
-
-        if (! $bot) {
-            return;
-        }
-
-        // 🔎 Pārbauda vai jau eksistē private čats starp bot un user
-        $existingConversation = \App\Models\Conversation::where('type', 'private')
-            ->whereHas('users', function ($q) use ($bot) {
-                $q->where('user_id', $bot->id);
-            })
-            ->whereHas('users', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            })
-            ->first();
-
-        if ($existingConversation) {
-            return;
-        }
-
-        // 🆕 Izveido jaunu private conversation
-        $conversation = \App\Models\Conversation::create([
-            'type' => 'private',
-            'title' => null,
-            'owner_id' => $bot->id,
-            'join_type' => 'open', // ⚠️ svarīgi
-        ]);
-
-        // 👥 Piesaista abus lietotājus
-        $conversation->users()->attach($bot->id, ['role' => 'member']);
-        $conversation->users()->attach($user->id, ['role' => 'member']);
-
-        // 💬 Pirmā ziņa no bota
-        \App\Models\Message::create([
-            'conversation_id' => $conversation->id,
-            'user_id' => $bot->id,
-            'body' => 'Sveiks! 👋 Prieks tevi redzēt Biblio čatā!',
-        ]);
-    });
-}
-// Users I follow
-public function following()
-{
-    return $this->belongsToMany(
-        User::class,
-        'followers',
-        'follower_id',
-        'following_id'
-    )->withTimestamps();
-}
-
-// Users following me
-public function followers()
-{
-    return $this->belongsToMany(
-        User::class,
-        'followers',
-        'following_id',
-        'follower_id'
-    )->withTimestamps();
-}
-
-
-
-
 
 }

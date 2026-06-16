@@ -1,17 +1,17 @@
 <template>
   <div class="bg-[#f3f6fb] min-h-screen pb-20">
 
-    <!-- COVER -->
+    <!-- Profila galvene -->
     <div class="h-56 bg-gradient-to-r from-[#213555] to-[#3E5879]"></div>
 
-    <!-- PROFILE -->
+    <!-- Navigācijas cilnes -->
     <div class="max-w-5xl mx-auto px-6">
 
       <div class="-mt-20 bg-white rounded-2xl shadow-xl p-6 md:p-8">
 
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
 
-          <!-- LEFT -->
+          <!-- kreisi -->
           <div class="flex items-center gap-5">
             <div class="flex flex-col items-center">
 
@@ -53,7 +53,7 @@
               </div>
 
               <div v-else>
-                <!-- USERNAME -->
+                <!-- Lietotājvārds -->
                 <p class="text-2xl md:text-3xl font-bold text-[#213555]">
                   {{ user.username }}
                 </p>
@@ -88,9 +88,9 @@
           Rediģēt informāciju
         </button>
       </div>
-      
+      <!-- Publiskā profila sadaļa -->
       <div v-if="activeTab === 'profile'" class="mt-10 text-center">
-
+        <!-- Lietotāja publiskās kolekcijas -->
         <div v-if="publicFolders.length">
 
           <h3 class="text-xl font-semibold text-[#213555] mb-6">
@@ -133,17 +133,17 @@
 
     </div>
 
-      <!-- MAPES -->
+      <!-- Mapju pārvaldības sadaļa -->
       <div v-if="activeTab === 'folders'" class="mt-6">
 
-        <!-- NAV ATVERTE MAPE -->
+        <!-- Nav atverta mape -->
         <div v-if="!openedFolderId">
 
-          <!-- ADD -->
+          <!-- Jaunas mapes izveide -->
           <div class="mb-4">
 
             <div class="flex items-center gap-3">
-              <!-- INPUT -->
+              <!-- Ievadīt -->
               <input
                 v-model="newFolderName"
                 @input="folderError = ''"
@@ -151,7 +151,7 @@
                 class="flex-1 border px-3 py-2 rounded-lg"
               />
 
-              <!-- TOGGLE -->
+              <!-- Pārslēgt -->
               <div
                 v-if="newFolderName.trim() !== ''"
                 class="flex items-center gap-2"
@@ -184,7 +184,7 @@
 
               </div>
 
-              <!-- + POGA -->
+              <!-- + Poga -->
               <button
                 @click="createFolder"
                 class="bg-[#213555] text-white px-4 rounded-lg"
@@ -200,7 +200,7 @@
 
           </div>
 
-          <!-- MAPES -->
+          <!-- Lietotāja mapju saraksts -->
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
 
             <div
@@ -210,7 +210,7 @@
               @click="selectFolder(folder.id)"
             >
 
-              <!-- IKONA -->
+              <!-- Ikona -->
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -220,7 +220,7 @@
                 <path d="M22 10H2v8a2 2 0 002 2h16a2 2 0 002-2v-8z"/>
               </svg>
 
-              <!-- DELETE -->
+              <!-- Dzēst -->
               <button
                 @click.stop="openDeleteFolderModal(folder.id)"
                 class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 bg-white rounded-full px-1 text-red-500 shadow"
@@ -228,7 +228,7 @@
                 ✕
               </button>
 
-              <!-- NOSAUKUMS -->
+              <!-- Nosaukums -->
               <p class="mt-2 text-sm font-medium text-[#213555] truncate max-w-[120px]">
                 {{ folder.name }}
               </p>
@@ -239,16 +239,16 @@
 
         </div>
 
-        <!-- ATVĒRTA MAPE -->
+        <!-- Atvērtās mapes saturs -->
         <div v-else>
 
-          <!-- HEADER -->
+          <!-- Galvene -->
           <div class="relative mb-10 border-b pb-6">
 
-            <!--  TOGGLE -->
+            <!--  Pārslēgt -->
             <div class="absolute top-2 right-2 flex items-center gap-2">
 
-              <!-- PRIVĀTA -->
+              <!-- Privāts -->
               <span
                 class="text-xs"
                 :class="!isPublic ? 'text-[#213555] font-semibold' : 'text-gray-400'"
@@ -256,7 +256,7 @@
                 Privāts
               </span>
 
-              <!-- SWITCH -->
+              <!-- Mainīt -->
               <button
                 @click="toggleFolderVisibility"
                 class="relative w-12 h-6 rounded-full transition"
@@ -268,7 +268,7 @@
                 ></span>
               </button>
 
-              <!-- PUBLISKA -->
+              <!-- Publisks -->
               <span
                 class="text-xs"
                 :class="isPublic ? 'text-green-600 font-semibold' : 'text-gray-400'"
@@ -278,7 +278,7 @@
 
             </div>
 
-            <!-- BACK -->
+            <!-- Atpakaļ -->
             <button
               @click="closeFolder"
               class="flex items-center gap-2 text-[#213555] hover:text-[#3E5879] mb-4"
@@ -286,7 +286,7 @@
               ← <span class="text-sm">Atpakaļ</span>
             </button>
 
-            <!-- TITLE -->
+            <!-- Nosaukums -->
             <h1 class="text-3xl md:text-4xl font-bold text-[#213555]">
               {{ openedFolderName }}
             </h1>
@@ -297,7 +297,7 @@
 
           </div>
 
-          <!-- BOOKS -->
+          <!-- Grāmatu attēlošana mapē -->
           <div v-if="books.length"
                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
@@ -320,7 +320,7 @@
 
       </div>
 
-      <!-- BIBLIOTĒKA -->
+      <!-- Bibliotēkas sadaļa -->
       <div v-if="activeTab === 'books'" class="mt-6">
 
         <h2 class="text-2xl font-bold text-[#213555] mb-4">
@@ -345,13 +345,13 @@
 
       </div>
 
-      <!-- ✏️ EDIT -->
+      <!-- Profila rediģēšanas sadaļa -->
 <div v-if="activeTab === 'edit'" class="mt-6 max-w-md">
 
   <h2 class="text-xl font-semibold text-[#213555] mb-6">
     Rediģēt profilu
   </h2>
-  <!-- AVATAR -->
+  <!-- Profila attēla maiņa -->
 <div class="flex flex-col items-center mb-6">
 
   <img
@@ -376,7 +376,7 @@
 
   <div class="space-y-4">
 
-    <!-- USERNAME -->
+    <!-- Lietotājvārds -->
     <input
       v-model="form.username"
       :placeholder="form.username ? 'Username' : 'Ievadi lietotājvārdu...'"
@@ -386,7 +386,7 @@
       {{ errors.username }}
     </p>
 
-    <!-- EMAIL -->
+    <!-- E-pasts -->
     <input
       v-model="form.email"
       :placeholder="form.email ? 'Email' : 'Ievadi e-pastu...'"
@@ -396,7 +396,7 @@
       {{ errors.email }}
     </p>
 
-    <!-- PASSWORD -->
+    <!-- Parole -->
     <input
       type="password"
       v-model="form.password"
@@ -407,7 +407,7 @@
       {{ errors.password }}
     </p>
 
-    <!-- CONFIRM PASSWORD -->
+    <!-- Apstiprināt paroli -->
     <input
       v-if="form.password"
       type="password"
@@ -432,7 +432,7 @@
     
     </div>
 
-    <!-- DELETE MODAL -->
+    <!-- Mapes dzēšanas apstiprinājuma logs -->
     <div
       v-if="showDeleteFolderModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
@@ -440,23 +440,23 @@
 
       <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
 
-        <!-- HEADER -->
+        <!-- Galvene -->
         <div class="bg-[#213555] text-white px-6 py-4 flex items-center gap-3">
           <span class="material-icons">delete</span>
           <h2 class="text-lg font-semibold">Dzēst mapi</h2>
         </div>
 
-        <!-- CONTENT -->
+        <!-- Saturs -->
         <div class="p-6 text-gray-700 text-sm">
           Vai tiešām vēlies dzēst šo mapi?
           <br>
           <span class="text-gray-400 text-xs">Šo darbību nevar atsaukt.</span>
         </div>
 
-        <!-- ACTIONS -->
+        <!-- Darbības -->
         <div class="flex justify-end gap-3 px-6 pb-6">
 
-          <!-- CANCEL -->
+          <!-- Atcelt -->
           <button
             @click="cancelDeleteFolder"
             class="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition text-sm"
@@ -464,7 +464,7 @@
             Atcelt
           </button>
 
-          <!-- DELETE -->
+          <!-- Dzēst -->
           <button
             @click="deleteFolderConfirmed"
             class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white transition text-sm flex items-center gap-1"
@@ -490,6 +490,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 
 defineOptions({ layout: AuthenticatedLayout })
 
+// Lietotāja dati un komponentes stāvokļa mainīgie
 const page = usePage()
 const user = computed(() => page.props.auth.user)
 
@@ -512,6 +513,7 @@ const newFolderPublic = ref(false)
 
 const publicFolders = ref([])
 
+// Profila rediģēšanas forma
 const form = ref({
   username: '',
   email: '',
@@ -519,6 +521,7 @@ const form = ref({
   password_confirmation: ''
 })
 
+// Formas validācijas kļūdas
 const errors = ref({
   username: '',
   email: '',
@@ -526,6 +529,7 @@ const errors = ref({
   password_confirmation: ''
 })
 
+// Notīra visas validācijas kļūdas
 const resetErrors = () => {
   errors.value = {
     username: '',
@@ -535,13 +539,16 @@ const resetErrors = () => {
   }
 }
 
+// Ielādē visas lietotāja mapes
 const fetchFolders = async () => {
   const { data } = await axios.get('/folders')
   folders.value = data
 }
 
+// Automātiski atjauno mapes, mainoties lietotāja datiem
 watch(user, fetchFolders, { immediate: true })
 
+// Atver izvēlēto mapi un ielādē tās grāmatas
 const selectFolder = async (id) => {
   const { data } = await axios.get(`/folders/${id}/books`)
 
@@ -551,10 +558,11 @@ const selectFolder = async (id) => {
   isPublic.value = data.folder.is_public
 }
 
+// Izveido jaunu mapi
 const createFolder = async () => {
   if (!newFolderName.value.trim()) return
 
-  folderError.value = '' // reset
+  folderError.value = ''
 
   try {
     await axios.post('/folders', {
@@ -564,8 +572,8 @@ const createFolder = async () => {
 
     newFolderName.value = ''
     newFolderPublic.value = false
+
     fetchFolders()
-    
 
   } catch (e) {
     if (e.response?.status === 422) {
@@ -576,30 +584,37 @@ const createFolder = async () => {
   }
 }
 
+// Ielādē visas lietotāja bibliotēkas grāmatas
 const loadAllBooks = async () => {
   resetErrors()
 
   const { data } = await axios.get('/books/user')
+
   books.value = data
   openedFolderId.value = null
   openedFolderName.value = null
   activeTab.value = 'books'
 }
 
+// Atver mapju sadaļu
 const goFolders = () => {
   resetErrors()
+
   activeTab.value = 'folders'
   books.value = []
+
   openedFolderId.value = null
   openedFolderName.value = null
 }
 
+// Aizver atvērto mapi
 const closeFolder = () => {
   openedFolderId.value = null
   openedFolderName.value = null
   books.value = []
 }
 
+// Nosaka aktīvās cilnes stilu
 const tabClass = (tab) => [
   'pb-2',
   activeTab.value === tab
@@ -607,46 +622,68 @@ const tabClass = (tab) => [
     : 'text-gray-500 hover:text-[#213555]'
 ]
 
+// Izņem grāmatu no attēlotā saraksta
 const removeBookFromList = (id) => {
   books.value = books.value.filter(b => b.id !== id)
 }
 
-/* DELETE FOLDER */
+/*Mapju dzēšanas funkcionalitāt*/
+
+// Atver mapes dzēšanas logu
 const openDeleteFolderModal = (id) => {
   folderToDelete.value = id
   showDeleteFolderModal.value = true
 }
 
+// Aizver mapes dzēšanas logu
 const cancelDeleteFolder = () => {
   showDeleteFolderModal.value = false
   folderToDelete.value = null
 }
 
+// Dzēš izvēlēto mapi
 const deleteFolderConfirmed = async () => {
   await axios.delete(`/folders/${folderToDelete.value}`)
-  folders.value = folders.value.filter(f => f.id !== folderToDelete.value)
+
+  folders.value = folders.value.filter(
+    f => f.id !== folderToDelete.value
+  )
+
   cancelDeleteFolder()
 }
+
+// Maina mapes publiskuma statusu
 const toggleFolderVisibility = async () => {
   try {
-    const res = await axios.patch(`/folders/${openedFolderId.value}/visibility`)
+    const res = await axios.patch(
+      `/folders/${openedFolderId.value}/visibility`
+    )
+
     isPublic.value = res.data.is_public
+
   } catch (e) {
     console.error(e)
   }
 }
 
+/*Profila funkcionalitāte*/
+
+// Ielādē profila sadaļu un publiskās kolekcijas
 const loadProfile = async () => {
   activeTab.value = 'profile'
 
   const { data } = await axios.get('/folders')
+
   publicFolders.value = data.filter(f => f.is_public)
 }
+
+// Atver profila sadaļu
 const goProfile = () => {
   loadProfile()
   resetErrors()
 }
 
+// Atver publisko mapi no profila sadaļas
 const openPublicFolder = async (id) => {
   const { data } = await axios.get(`/folders/${id}/books`)
 
@@ -655,12 +692,12 @@ const openPublicFolder = async (id) => {
   openedFolderName.value = data.folder.name
   isPublic.value = data.folder.is_public
 
-  activeTab.value = 'folders' // pārslēdz uz mapes view
+  activeTab.value = 'folders'
 }
 
+// Saglabā profila izmaiņas
 const saveProfile = async () => {
 
-  // reset errors
   errors.value = {
     username: '',
     email: '',
@@ -670,35 +707,49 @@ const saveProfile = async () => {
 
   let hasError = false
 
-  // USERNAME
+  // Lietotājvārda validācija
   if (!isUsernameValid(form.value.username)) {
-    errors.value.username = 'Username: vismaz 4 simboli, tikai burti/cipari'
+    errors.value.username =
+      'Username: vismaz 4 simboli, tikai burti/cipari'
+
     hasError = true
   }
 
-  // EMAIL
+  // E-pasta validācija
   if (!isEmailValid(form.value.email)) {
     errors.value.email = 'Nepareizs e-pasts'
     hasError = true
   }
 
-  // PASSWORD
+  // Paroles validācija
   if (form.value.password) {
+
     const hasUppercase = /[A-Z]/.test(form.value.password)
     const hasNumber = /\d/.test(form.value.password)
 
-    if (form.value.password.length < 6 || !hasUppercase || !hasNumber) {
-      errors.value.password = 'Min 6 simboli, 1 lielais burts un 1 cipars'
+    if (
+      form.value.password.length < 6 ||
+      !hasUppercase ||
+      !hasNumber
+    ) {
+      errors.value.password =
+        'Min 6 simboli, 1 lielais burts un 1 cipars'
+
       hasError = true
     }
 
-    if (form.value.password !== form.value.password_confirmation) {
-      errors.value.password_confirmation = 'Paroles nesakrīt'
+    if (
+      form.value.password !==
+      form.value.password_confirmation
+    ) {
+      errors.value.password_confirmation =
+        'Paroles nesakrīt'
+
       hasError = true
     }
   }
 
-  if (hasError) return   // ✅ tagad IR funkcijā
+  if (hasError) return
 
   try {
     const res = await axios.put('/user/update', form.value)
@@ -712,42 +763,58 @@ const saveProfile = async () => {
     activeTab.value = 'profile'
 
   } catch (e) {
+
     if (e.response?.status === 422) {
+
       const backendErrors = e.response.data.errors
 
-      errors.value.username = backendErrors.username?.[0] || ''
-      errors.value.email = backendErrors.email?.[0] || ''
-      errors.value.password = backendErrors.password?.[0] || ''
+      errors.value.username =
+        backendErrors.username?.[0] || ''
+
+      errors.value.email =
+        backendErrors.email?.[0] || ''
+
+      errors.value.password =
+        backendErrors.password?.[0] || ''
     }
   }
 }
 
-
+// Atver profila rediģēšanas sadaļu
 const goEdit = () => {
   resetErrors()
 
   form.value.username = user.value.username
   form.value.email = user.value.email
+
   form.value.password = ''
   form.value.password_confirmation = ''
 
   activeTab.value = 'edit'
 }
 
-const isEmailValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+/* Validācijas funkcijas*/
 
+// Pārbauda e-pasta formātu
+const isEmailValid = (email) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
+// Pārbauda paroles stiprumu
 const isPasswordStrong = (password) =>
   /[A-Za-z]/.test(password) && /\d/.test(password)
 
+// Pārbauda lietotājvārda korektumu
 const isUsernameValid = (username) =>
   /^[A-Za-z0-9]+$/.test(username) &&
   !/^\d+$/.test(username) &&
   username.length >= 4
 
-  const uploadAvatar = async (e) => {
-  const file = e.target.files[0]
+/*Profila attēla augšupielāde*/
 
-  console.log('FILE:', file) // 🔥 ŠIS IR 1. SOLIS
+// Augšupielādē jaunu profila attēlu
+const uploadAvatar = async (e) => {
+
+  const file = e.target.files[0]
 
   if (!file) return
 
@@ -755,16 +822,21 @@ const isUsernameValid = (username) =>
   formData.append('avatar', file)
 
   try {
-    const res = await axios.post('/user/avatar', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+
+    const res = await axios.post(
+      '/user/avatar',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       }
-    })
+    )
 
     user.value.avatar = res.data.avatar
 
   } catch (e) {
-    console.log('ERROR:', e.response.data) // 🔥 ŠIS IR 3. SOLIS
+    console.log('ERROR:', e.response.data)
   }
 }
 </script>

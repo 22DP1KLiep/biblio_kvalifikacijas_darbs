@@ -8,26 +8,29 @@ use Illuminate\Http\Request;
 
 class CommentLikeController extends Controller
 {
+    // Pievieno vai noņem "patīk" reakciju komentāram
     public function toggle($id)
     {
-        // atrodam komentāru pēc id
+        // Atrod komentāru pēc ID
         $comment = Comment::findOrFail($id);
 
-        // iegūstam autorizēto lietotāju
+        // Iegūst autorizēto lietotāju
         $user = auth()->user();
 
-        // pārbaudām vai lietotājs ir pieslēdzies
+        // Pārbauda, vai lietotājs ir pieslēdzies sistēmai
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        // pārbaudām vai lietotājs jau ir ielicis like šim komentāram
-        $existing = $comment->likes()->where('user_id', $user->id)->first();
+        // Pārbauda, vai lietotājs jau ir atzīmējis komentāru ar "patīk"
+        $existing = $comment->likes()
+            ->where('user_id', $user->id)
+            ->first();
 
         // ja like jau eksistē — noņemam to
         if ($existing) {
 
-            // dzēšam like ierakstu
+            // Ja reakcija jau eksistē, tā tiek noņemta
             $existing->delete();
 
             // saglabājam statusu, ka komentārs vairs nav ielaikots
@@ -35,31 +38,20 @@ class CommentLikeController extends Controller
 
         } else {
 
-            // izveidojam jaunu like ierakstu
+            // Ja reakcijas nav, tā tiek pievienota
             $comment->likes()->create([
                 'user_id' => $user->id,
                 'comment_id' => $comment->id
             ]);
 
-            // saglabājam statusu, ka komentārs ir ielaikots
             $isLiked = true;
 
-            // izveidojam notifikāciju tikai tad,
-            // ja lietotājs nelaiko pats savu komentāru
+            // Izveido paziņojumu komentāra autoram
             if ($comment->user_id !== $user->id) {
-
                 \App\Models\Notification::create([
-
-                    // kam tiks nosūtīta notifikācija
                     'user_id' => $comment->user_id,
-
-                    // kurš veica darbību
                     'from_user_id' => $user->id,
-
-                    // notifikācijas tips
                     'type' => 'comment_like',
-
-                    // papildu dati par komentāru un grāmatu
                     'data' => [
                         'comment_id' => $comment->id,
                         'book_id' => $comment->book_id
@@ -68,7 +60,7 @@ class CommentLikeController extends Controller
             }
         }
 
-        // atgriežam jauno like skaitu un statusu
+        // Atgriež aktuālo "patīk" skaitu un lietotāja reakcijas statusu
         return response()->json([
             'likes_count' => $comment->likes()->count(),
             'is_liked' => $isLiked

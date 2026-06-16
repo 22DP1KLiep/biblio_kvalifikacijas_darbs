@@ -13,13 +13,13 @@ class FolderSeeder extends Seeder
         $user = User::first(); // vai find(1) ja konkrēts ID
 
         if (!$user) {
-            echo "❌ Lietotājs nav atrasts. Pārliecinies, ka ir lietotājs datubāzē.\n";
+            echo " Lietotājs nav atrasts. Pārliecinies, ka ir lietotājs datubāzē.\n";
             return;
         }
 
         Folder::firstOrCreate(['user_id' => $user->id, 'name' => 'Izlasīts']);
         Folder::firstOrCreate(['user_id' => $user->id, 'name' => 'Plānoju lasīt']);
 
-        echo "✅ Mapes veiksmīgi pievienotas!\n";
+        echo "Mapes veiksmīgi pievienotas!\n";
     }
 }

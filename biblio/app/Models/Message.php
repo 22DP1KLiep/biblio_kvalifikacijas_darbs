@@ -12,48 +12,49 @@ class Message extends Model
 {
     use HasFactory;
 
+    // Lauki, kurus atļauts masveidā aizpildīt
     protected $fillable = [
         'conversation_id',
         'user_id',
         'body',
     ];
 
-    /* --------------------
-     | Relationships
-     | --------------------
-     */
+    /*Relācijas*/
 
-    // which conversation this message belongs to
+    // Saruna, kurai pieder ziņojums
     public function conversation()
     {
         return $this->belongsTo(Conversation::class);
     }
 
-    // who wrote the message
+    // Lietotājs, kurš nosūtīja ziņojumu
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // comments under a channel post
+    // Komentāri, kas pievienoti kanāla ierakstam
     public function comments()
-{
-    return $this->hasMany(MessageComment::class);
-}
-
-public static function canSend(User $user, Conversation $conversation): bool
-{
-    if (! $conversation->isMember($user)) {
-        return false;
+    {
+        return $this->hasMany(MessageComment::class);
     }
 
-    // private chat → both users can send
-    if ($conversation->isPrivate()) {
-        return true;
+    /*Piekļuves pārbaude*/
+
+    // Pārbauda, vai lietotājs drīkst publicēt ziņojumu sarunā
+    public static function canSend(User $user, Conversation $conversation): bool
+    {
+        // Lietotājam jābūt sarunas dalībniekam
+        if (!$conversation->isMember($user)) {
+            return false;
+        }
+
+        // Privātajā sarunā rakstīt drīkst visi dalībnieki
+        if ($conversation->isPrivate()) {
+            return true;
+        }
+
+        // Kanālā publicēt drīkst tikai administrators vai īpašnieks
+        return $conversation->isAdmin($user);
     }
-
-    // channel → only admin or owner can post
-    return $conversation->isAdmin($user);
-}
-
 }
